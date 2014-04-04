@@ -6,15 +6,10 @@ Collection = require "./collection"
 
 module.exports = class Link
   constructor: (@_link)->
-
-  href: ->
-    @_link.href
-
-  rel: ->
-    @_link.rel
-
-  prompt: ->
-    @_link.prompt
+    console.log @_link
+    @href = @_link.href
+    @rel = @_link.rel
+    @prompt = @_link.prompt
 
   follow: (done=()->)->
     options = {}

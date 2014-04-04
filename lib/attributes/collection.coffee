@@ -1,6 +1,9 @@
 
 _ = require "../underscore"
 http = require "../http"
+Link = require "./link"
+Item = require "./item"
+Query = require "./query"
 
 module.exports = class Collection
   constructor: (collection)->
@@ -14,47 +17,20 @@ module.exports = class Collection
     @_items = null
     @_template = null
     @error = @_collection.error
-
-  href: ->
-    @_collection.href
-
-  version: ->
-    @_collection.version
-
-  links: ->
-    return @_links if @_links
-
-    @_links = links = []
-    Link = require "./link"
-
-    _.each @_collection.links, (link)->
-      links.push new Link link
-    @_links
+    @href = @_collection.href
+    @version = @_collection.version
+    @links = _.map @_collection.links, (link)->
+      new Link link
+    @items = _.map @_collection.items, (item)->
+      new Item item
+    @queries = _.map @_collection.queries, (query)->
+      new Query query
 
   link: (rel)->
-    console.log @links()
-    _.find @links(), (link)-> link.rel() is rel
-
-  items: ->
-    return @_items if @_items
-
-    @_items = items = []
-    Item = require "./item"
-
-    _.each @_collection.items, (item)->
-      items.push new Item item
-    @_items
+    _.find @links, (link)-> link.rel is rel
 
   item: (href)->
     _.find @items, (item)-> item.href is href
-
-  queries: ->
-    queries = []
-    Query = require "./query"
-
-    _.each @_collection.queries||[], (query)->
-      queries.push new Query query
-    queries
 
   query: (rel)->
     query = _.find @_collection.queries||[], (query)->

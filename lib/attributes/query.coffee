@@ -10,6 +10,10 @@ module.exports = class Query
     _query = @_query
     _form = @form
 
+    @href = @_query.href
+    @rel = @_query.rel
+    @prompt = @_query.prompt
+
     _.each _query.data, (datum)->
       _form[datum.name] = datum.value if not _form[datum.name]?
 
@@ -25,10 +29,6 @@ module.exports = class Query
 
   promptFor: (key)->
     @datum(key)?.prompt
-
-  href: ()-> @_query.href
-  rel: ()-> @_query.rel
-  prompt: ()-> @_query.prompt
 
   submit: (done=()->)->
     options =

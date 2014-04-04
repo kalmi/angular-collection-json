@@ -11,8 +11,7 @@ module.exports = class Item
   constructor: (@_item, @_template)->
     @_links = {}
     @_data = null
-
-  href: ()-> @_item.href
+    @href = @_item.href
 
   datum: (key)->
     datum = _.find @_item.data, (item)-> item.name is key
