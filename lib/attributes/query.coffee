@@ -26,9 +26,9 @@ module.exports = class Query
   promptFor: (key)->
     @datum(key)?.prompt
 
-  @define "href", get: ()-> @_query.href
-  @define "rel", get: ()-> @_query.rel
-  @define "prompt", get: ()-> @_query.prompt
+  href: ()-> @_query.href
+  rel: ()-> @_query.rel
+  prompt: ()-> @_query.prompt
 
   submit: (done=()->)->
     options =

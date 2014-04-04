@@ -23,9 +23,9 @@ describe "Attributes", ->
 
     describe "[collection](http://amundsen.com/media-types/collection/format/#objects-collection)", ->
       it "should have a version", ->
-        collection.version.should.equal data.collection.version
+        collection.version().should.equal data.collection.version
       it "should have an href", ->
-        collection.href.should.equal data.collection.href
+        collection.href().should.equal data.collection.href
       it "should throw an exception with a bad version number", ->
         cj.parse {collection: version: "1.1"}, (error, col)->
           should.exist error, "No error was returned"
@@ -85,7 +85,7 @@ describe "Attributes", ->
       it "should iterate items", ->
         for idx, item of collection.items
           orig = data.collection.items[idx]
-          item.href.should.equal orig.href
+          item.href().should.equal orig.href()
 
       it "should get a value", ->
         for idx, item of collection.items
@@ -100,7 +100,7 @@ describe "Attributes", ->
       it "should iterate queries", ->
         for query in collection.queries
           orig = _.find data.collection.queries, (_query)-> _query.rel is query.rel
-          query.href.should.equal orig.href
+          query.href().should.equal orig.href()
           query.rel.should.equal orig.rel
           query.prompt.should.equal orig.prompt
 
@@ -114,24 +114,24 @@ describe "Attributes", ->
       it "should get a query by rel", ->
         for orig in data.collection.queries
           searchQuery = collection.query orig.rel
-          searchQuery.href.should.equal orig.href
-          searchQuery.rel.should.equal orig.rel
-          searchQuery.prompt.should.equal orig.prompt
+          searchQuery.href().should.equal orig.href
+          searchQuery.rel().should.equal orig.rel
+          searchQuery.prompt().should.equal orig.prompt
 
     describe "[links](http://amundsen.com/media-types/collection/format/#arrays-links)", ->
       it "should get iterate the links", ->
         for link in collection.links
           orig = _.find data.collection.links, (_link)-> _link.rel is link.rel
-          link.href.should.equal orig.href
+          link.href().should.equal orig.href()
           link.rel.should.equal orig.rel
           link.prompt.should.equal orig.prompt
 
       it "should get a link by rel", ->
         for orig in data.collection.links
           link = collection.link(orig.rel)
-          link.href.should.equal orig.href
-          link.rel.should.equal orig.rel
-          link.prompt.should.equal orig.prompt
+          link.href().should.equal orig.href
+          link.rel().should.equal orig.rel
+          link.prompt().should.equal orig.prompt
 
   describe "[Extensions](https://github.com/mamund/collection-json/tree/master/extensions)", ->
 

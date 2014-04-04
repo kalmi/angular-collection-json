@@ -12,7 +12,7 @@ module.exports = class Item
     @_links = {}
     @_data = null
 
-  @define "href", get: ()-> @_item.href
+  href: ()-> @_item.href
 
   datum: (key)->
     datum = _.find @_item.data, (item)-> item.name is key

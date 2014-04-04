@@ -7,15 +7,14 @@ Collection = require "./collection"
 module.exports = class Link
   constructor: (@_link)->
 
-  @define "href"
-    get: ->
-      @_link.href
-  @define "rel"
-    get: ->
-      @_link.rel
-  @define "prompt"
-    get: ->
-      @_link.prompt
+  href: ->
+    @_link.href
+
+  rel: ->
+    @_link.rel
+
+  prompt: ->
+    @_link.prompt
 
   follow: (done=()->)->
     options = {}

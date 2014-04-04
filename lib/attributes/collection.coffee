@@ -2,9 +2,6 @@
 _ = require "../underscore"
 http = require "../http"
 
-Function::define = (prop, desc) ->
-  Object.defineProperty @prototype, prop, desc
-
 module.exports = class Collection
   constructor: (collection)->
     # Lets verify that it's a valid collection
@@ -18,49 +15,46 @@ module.exports = class Collection
     @_template = null
     @error = @_collection.error
 
-  @define "href"
-    get: ->
-      @_collection.href
-  @define "version"
-    get: ->
-      @_collection.version
+  href: ->
+    @_collection.href
 
-  @define "links",
-    get: ->
-      return @_links if @_links
+  version: ->
+    @_collection.version
 
-      @_links = links = []
-      Link = require "./link"
+  links: ->
+    return @_links if @_links
 
-      _.each @_collection.links, (link)->
-        links.push new Link link
-      @_links
+    @_links = links = []
+    Link = require "./link"
+
+    _.each @_collection.links, (link)->
+      links.push new Link link
+    @_links
 
   link: (rel)->
-    _.find @links, (link)-> link.rel is rel
+    console.log @links()
+    _.find @links(), (link)-> link.rel() is rel
 
-  @define "items",
-    get: ->
-      return @_items if @_items
+  items: ->
+    return @_items if @_items
 
-      @_items = items = []
-      Item = require "./item"
+    @_items = items = []
+    Item = require "./item"
 
-      _.each @_collection.items, (item)->
-        items.push new Item item
-      @_items
+    _.each @_collection.items, (item)->
+      items.push new Item item
+    @_items
 
   item: (href)->
     _.find @items, (item)-> item.href is href
 
-  @define "queries",
-    get: ->
-      queries = []
-      Query = require "./query"
+  queries: ->
+    queries = []
+    Query = require "./query"
 
-      _.each @_collection.queries||[], (query)->
-        queries.push new Query query
-      queries
+    _.each @_collection.queries||[], (query)->
+      queries.push new Query query
+    queries
 
   query: (rel)->
     query = _.find @_collection.queries||[], (query)->
