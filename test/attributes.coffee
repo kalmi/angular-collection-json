@@ -1,61 +1,63 @@
 
-should = require "should"
-fs = require "fs"
-_ = require "underscore"
-
-cj = require ".."
+#should = require "should"
+#fs = require "fs"
+#_ = require "underscore"
+#
+#cj = require ".."
 
 describe "Attributes", ->
+  cj = null
+  beforeEach(module('Collection'));
+
+  beforeEach(inject (_cj_)->
+    cj = _cj_
+  )
 
   describe "[Original](http://amundsen.com/media-types/collection/)", ->
 
-    collection = null
-    data = null
-
-    before ->
-      data = require "./fixtures/original"
-
-    beforeEach (done)->
+    collection = data = errorData = null
+    beforeEach inject (cjOriginal, cjError)->
+      data = cjOriginal
+      errorData = cjError
+    beforeEach ->
       cj.parse data, (error, _collection)->
         throw error if error
         collection = _collection
-        done()
 
     describe "[collection](http://amundsen.com/media-types/collection/format/#objects-collection)", ->
       it "should have a version", ->
-        collection.version.should.equal data.collection.version
+        expect(collection.version()).toEqual data.collection.version
       it "should have an href", ->
-        collection.href.should.equal data.collection.href
+        expect(collection.href()).toEqual data.collection.href
       it "should throw an exception with a bad version number", ->
         cj.parse {collection: version: "1.1"}, (error, col)->
-          should.exist error, "No error was returned"
+          expect(error).toBeDefined("No error was returned")
       it "should throw an exception with a malformed collection", ->
         cj.parse {version: "1.1"}, (error, col)->
-          should.exist error, "No error was returned"
+          expect(error).toBeDefined("No error was returned")
 
     describe "[error](http://amundsen.com/media-types/collection/format/#objects-error)", ->
       it "should have an error", ->
-        errorData = require("./fixtures/error")
         cj.parse errorData, (error, errorCol)->
-          should.exist error, "An error was not returned"
-          should.exist errorCol, "The collection with the error was not returned"
+          expect(error).toBeDefined "An error was not returned"
+          expect(errorCol).toBeDefined "The collection with the error was not returned"
 
-          error.title.should.equal errorData.collection.error.title
-          error.code.should.equal errorData.collection.error.code
-          error.message.should.equal errorData.collection.error.message
+          expect(error.title).toEqual errorData.collection.error.title
+          expect(error.code).toEqual errorData.collection.error.code
+          expect(error.message).toEqual errorData.collection.error.message
 
-          errorCol.error.title.should.equal errorData.collection.error.title
-          errorCol.error.code.should.equal errorData.collection.error.code
-          errorCol.error.message.should.equal errorData.collection.error.message
+          expect(errorCol.error.title).toEqual errorData.collection.error.title
+          expect(errorCol.error.code).toEqual errorData.collection.error.code
+          expect(errorCol.error.message).toEqual errorData.collection.error.message
 
     describe "[template](http://amundsen.com/media-types/collection/format/#objects-template)", ->
       it "should iterate properties template", ->
         template = collection.template()
         for key, value of template.form
           orig = _.find data.collection.template.data, (datum)-> datum.name is key
-          key.should.equal orig.name
-          value.should.equal orig.value
-          template.promptFor(key).should.equal orig.prompt
+          expect(key).toEqual orig.name
+          expect(value).toEqual orig.value
+          expect(template.promptFor(key)).toEqual orig.prompt
 
       it "should be able to set values", ->
         newItem = collection.template()
@@ -69,69 +71,69 @@ describe "Attributes", ->
         newItem.set "blog", blog
         newItem.set "avatar", avatar
 
-        newItem.get("full-name").should.equal name
-        newItem.get("email").should.equal email
-        newItem.get("blog").should.equal blog
-        newItem.get("avatar").should.equal avatar
+        expect(newItem.get("full-name")).toEqual name
+        expect(newItem.get("email")).toEqual email
+        expect(newItem.get("blog")).toEqual blog
+        expect(newItem.get("avatar")).toEqual avatar
 
       it "should return a datum given a name", ->
         newItem = collection.template()
         fullName = newItem.datum("full-name")
-        fullName.name.should.equal "full-name"
-        fullName.prompt.should.equal "Full Name"
-        fullName.value.should.equal "Joe"
+        expect(fullName.name).toEqual "full-name"
+        expect(fullName.prompt).toEqual "Full Name"
+        expect(fullName.value).toEqual "Joe"
 
     describe "[items](http://amundsen.com/media-types/collection/format/#arrays-items)", ->
       it "should iterate items", ->
         for idx, item of collection.items
           orig = data.collection.items[idx]
-          item.href.should.equal orig.href
+          expect(item.href).toEqual orig.href
 
       it "should get a value", ->
         for idx, item of collection.items
           orig = data.collection.items[idx]
           for datum in orig.data
             itemDatum = item.get(datum.name)
-            should.exist itemDatum, "Item does not have #{datum.name}"
-            itemDatum.should.equal datum.value
-        
+            expect(itemDatum).toBeDefined "Item does not have #{datum.name}"
+            expect(itemDatum).toEqual datum.value
+
     describe "[queries](http://amundsen.com/media-types/collection/format/#arrays-queries)", ->
 
       it "should iterate queries", ->
         for query in collection.queries
           orig = _.find data.collection.queries, (_query)-> _query.rel is query.rel
-          query.href.should.equal orig.href
-          query.rel.should.equal orig.rel
-          query.prompt.should.equal orig.prompt
+          expect(query.href).toEqual orig.href
+          expect(query.rel).toEqual orig.rel
+          expect(query.prompt).toEqual orig.prompt
 
       it "should be able to set values", ->
         searchQuery = collection.query "search"
 
         searchQuery.set "search", "Testing"
 
-        searchQuery.get("search").should.equal "Testing"
+        expect(searchQuery.get("search")).toEqual "Testing"
 
       it "should get a query by rel", ->
         for orig in data.collection.queries
           searchQuery = collection.query orig.rel
-          searchQuery.href.should.equal orig.href
-          searchQuery.rel.should.equal orig.rel
-          searchQuery.prompt.should.equal orig.prompt
+          expect(searchQuery.href()).toEqual orig.href
+          expect(searchQuery.rel()).toEqual orig.rel
+          expect(searchQuery.prompt()).toEqual orig.prompt
 
     describe "[links](http://amundsen.com/media-types/collection/format/#arrays-links)", ->
       it "should get iterate the links", ->
         for link in collection.links
           orig = _.find data.collection.links, (_link)-> _link.rel is link.rel
-          link.href.should.equal orig.href
-          link.rel.should.equal orig.rel
-          link.prompt.should.equal orig.prompt
+          expect(link.href).toEqual orig.href
+          expect(link.rel).toEqual orig.rel
+          expect(link.prompt).toEqual orig.prompt
 
       it "should get a link by rel", ->
         for orig in data.collection.links
           link = collection.link(orig.rel)
-          link.href.should.equal orig.href
-          link.rel.should.equal orig.rel
-          link.prompt.should.equal orig.prompt
+          expect(link.href()).toEqual orig.href
+          expect(link.rel()).toEqual orig.rel
+          expect(link.prompt()).toEqual orig.prompt
 
   describe "[Extensions](https://github.com/mamund/collection-json/tree/master/extensions)", ->
 

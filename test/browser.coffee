@@ -1,7 +1,7 @@
-
-should = require "should"
-
-cj = require ".."
+#
+#should = require "should"
+#
+#cj = require ".."
 
 describe "Browser HTTP Client", ->
 

@@ -1,7 +1,7 @@
 
-should = require "should"
-
-cj = require ".."
+#should = require "should"
+#
+#cj = require ".."
 
 describe "Built-in Memory Cache", ->
   it "should set cache"

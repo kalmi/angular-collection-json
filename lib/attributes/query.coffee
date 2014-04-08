@@ -1,39 +1,37 @@
+angular.module('Collection').provider('Query', ->
+  $get: ->
+    class Query
+      class Query
+        constructor: (@_query, @form={})->
+          _query = @_query
+          _form = @form
 
-_ = require "../underscore"
-http = require "../http"
-client = require "../client"
+          _.each _query.data, (datum)->
+            _form[datum.name] = datum.value if not _form[datum.name]?
 
-Collection = require "./collection"
+        datum: (key)->
+          datum = _.find @_query.data or [], (datum)-> datum.name is key
+          _.clone datum
 
-module.exports = class Query
-  constructor: (@_query, @form={})->
-    _query = @_query
-    _form = @form
+        get: (key)->
+          @form[key]
 
-    @href = @_query.href
-    @rel = @_query.rel
-    @prompt = @_query.prompt
+        set: (key, value)->
+          @form[key] = value
 
-    _.each _query.data, (datum)->
-      _form[datum.name] = datum.value if not _form[datum.name]?
+        promptFor: (key)->
+          @datum(key)?.prompt
 
-  datum: (key)->
-    datum = _.find @_query.data or [], (datum)-> datum.name is key
-    _.clone datum
+        href: ()-> @_query.href
+        rel: ()-> @_query.rel
+        prompt: ()-> @_query.prompt
 
-  get: (key)->
-    @form[key]
+        submit: (done=()->)->
+          options =
+            qs: @form
 
-  set: (key, value)->
-    @form[key] = value
+          http.get @_query.href, options, (error, collection)->
+            return done error if error
+            client.parse collection, done
 
-  promptFor: (key)->
-    @datum(key)?.prompt
-
-  submit: (done=()->)->
-    options =
-      qs: @form
-
-    http.get @_query.href, options, (error, collection)->
-      return done error if error
-      client.parse collection, done
+)

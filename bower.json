@@ -1,0 +1,27 @@
+{
+  "name": "angular-collection-json",
+  "version": "0.0.1",
+  "homepage": "",
+  "authors": [
+    "jasonaden"
+  ],
+  "description": "Collection+JSON parsing for AngularJS",
+  "main": "index.js",
+  "keywords": [
+    "angular",
+    "collection+json",
+    "collection.json",
+    "collection"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "node_modules",
+    "bower_components",
+    "test"
+  ],
+  "devDependencies": {
+    "angular": "~1.2.16",
+    "angular-mocks": "~1.2.16",
+    "lodash": "~2.4.1"
+  }
+}

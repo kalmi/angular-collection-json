@@ -1,40 +1,37 @@
+angular.module('Collection').provider('Template', ->
+  $get: ->
+    class Template
+      constructor: (@href, @_template, @form={})->
+        _template = @_template
+        _form = @form
 
-_ = require "../underscore"
-http = require "../http"
-client = require "../client"
+        _.each _template?.data or [], (datum)->
+          _form[datum.name] = datum.value if not _form[datum.name]?
 
-Collection = require "./collection"
+      datum: (key)->
+        datum = _.find @_template?.data or [], (datum)-> datum.name is key
+        _.clone datum
 
-module.exports = class Template
-  constructor: (@href, @_template, @form={})->
-    _template = @_template
-    _form = @form
+      get: (key)->
+        @form[key]
 
-    _.each _template?.data or [], (datum)->
-      _form[datum.name] = datum.value if not _form[datum.name]?
+      set: (key, value)->
+        @form[key] = value
 
-  datum: (key)->
-    datum = _.find @_template?.data or [], (datum)-> datum.name is key
-    _.clone datum
+      promptFor: (key)->
+        @datum(key)?.prompt
 
-  get: (key)->
-    @form[key]
+      submit: (done=()->)->
+        form = _.map @form, (value, name)->
+          name: name, value: value
 
-  set: (key, value)->
-    @form[key] = value
+        options =
+          body:
+            template:
+              data: form
 
-  promptFor: (key)->
-    @datum(key)?.prompt
-  
-  submit: (done=()->)->
-    form = _.map @form, (value, name)->
-      name: name, value: value
+        http.post @href, options, (error, collection)->
+          return done error if error
+          client.parse collection, done
 
-    options =
-      body:
-        template:
-          data: form
-
-    http.post @href, options, (error, collection)->
-      return done error if error
-      client.parse collection, done
+)
