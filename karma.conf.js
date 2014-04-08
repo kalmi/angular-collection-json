@@ -1,35 +1,25 @@
-// Karma configuration
-// Generated on Sat Apr 05 2014 05:58:22 GMT-0700 (PDT)
-
-
 module.exports = function(config) {
+  'use strict';
+
   config.set({
 
-    // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: 'test',
-
-
-    // frameworks to use
-    // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine'],
 
-    reportSlowerThan: 10,
+    reportSlowerThan: 50,
 
-    // list of files / patterns to load in the browser
     files: [
-      '../bower_components/angular/angular.js',
-      '../bower_components/angular-mocks/angular-mocks.js',
-      '../bower_components/lodash/dist/lodash.underscore.js',
-      '../lib/client.js',
-      '../lib/attributes/*.js',
-      'fixtures/*.js',
-      '*.js'
+      'bower_components/angular/angular.js',
+      'bower_components/angular-mocks/angular-mocks.js',
+      'bower_components/lodash/dist/lodash.underscore.js',
+      'lib/client.coffee',
+      'lib/attributes/*.coffee',
+      'test/**/*.coffee',
+      'test/fixtures/*.js',
     ],
 
 
-    // list of files to exclude
     exclude: [
-      
+      'test/acceptance/**/*'
     ],
 
 
@@ -40,7 +30,6 @@ module.exports = function(config) {
     },
 
     coffeePreprocessor: {
-      // options passed to the coffee compiler
       options: {
         bare: true,
         sourceMap: false
@@ -72,12 +61,12 @@ module.exports = function(config) {
 
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: false,
+    autoWatch: true,
 
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
+    browsers: ['PhantomJS'],
 
 
     // Continuous Integration mode
