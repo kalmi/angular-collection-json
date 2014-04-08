@@ -1,3 +1,5 @@
+lib/**/*.js
+test/*.js
 bower_components
 .idea
 node_modules
