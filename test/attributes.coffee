@@ -1,17 +1,9 @@
-
-#should = require "should"
-#fs = require "fs"
-#_ = require "underscore"
-#
-#cj = require ".."
-
 describe "Attributes", ->
   cj = null
-  beforeEach(module('Collection'));
+  beforeEach module('Collection')
 
-  beforeEach(inject (_cj_)->
+  beforeEach inject (_cj_)->
     cj = _cj_
-  )
 
   describe "[Original](http://amundsen.com/media-types/collection/)", ->
 
