@@ -1,9 +1,10 @@
 describe "Attributes", ->
-  cj = null
+  cj = scope = null
   beforeEach module('Collection')
 
-  beforeEach inject (_cj_)->
+  beforeEach inject (_cj_, $rootScope)->
     cj = _cj_
+    scope = $rootScope.$new()
 
   describe "[Original](http://amundsen.com/media-types/collection/)", ->
 
@@ -11,10 +12,8 @@ describe "Attributes", ->
     beforeEach inject (cjOriginal, cjError)->
       data = cjOriginal
       errorData = cjError
-    beforeEach ->
-      cj.parse data, (error, _collection)->
-        throw error if error
-        collection = _collection
+      cj.parse(data).then((c) -> collection = c)
+      scope.$digest()
 
     describe "[collection](http://amundsen.com/media-types/collection/format/#objects-collection)", ->
       it "should have a version", ->
@@ -22,11 +21,15 @@ describe "Attributes", ->
       it "should have an href", ->
         expect(collection.href()).toEqual data.collection.href
       it "should throw an exception with a bad version number", ->
-        cj.parse {collection: version: "1.1"}, (error, col)->
-          expect(error).toBeDefined("No error was returned")
+        error = null
+        cj.parse(collection: version: "1.1").catch((e) -> error = e)
+        scope.$digest()
+        expect(error).toBeDefined("No error was returned")
       it "should throw an exception with a malformed collection", ->
-        cj.parse {version: "1.1"}, (error, col)->
-          expect(error).toBeDefined("No error was returned")
+        error = null
+        cj.parse(version: "1.1").catch((e) -> error = e)
+        scope.$digest()
+        expect(error).toBeDefined("No error was returned")
 
     describe "[error](http://amundsen.com/media-types/collection/format/#objects-error)", ->
       it "should have an error", ->
@@ -126,6 +129,29 @@ describe "Attributes", ->
           expect(link.href()).toEqual orig.href
           expect(link.rel()).toEqual orig.rel
           expect(link.prompt()).toEqual orig.prompt
+
+  describe "HTTP Requests", ->
+    scope = $httpBackend = data = errorData = null
+    cjUrl = "http://example.com/collection.json"
+
+
+    beforeEach inject (_$httpBackend_, cjOriginal, cjError) ->
+      data = cjOriginal
+      errorData = cjError
+      $httpBackend = _$httpBackend_
+      $httpBackend.whenGET(cjUrl).respond data
+
+    it "returns a promise", ->
+      result = cj(cjUrl)
+      expect(typeof result.then).toBe "function"
+
+    it "parses result", ->
+      result = null
+      cj(cjUrl).then (collection) -> result = collection
+      $httpBackend.flush()
+      expect(result.version()).toEqual data.collection.version
+
+
 
   describe "[Extensions](https://github.com/mamund/collection-json/tree/master/extensions)", ->
 
