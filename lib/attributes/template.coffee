@@ -1,7 +1,7 @@
 angular.module('Collection').provider('Template', ->
   $get: ($injector) ->
     class Template
-      constructor: (@href, @_template, @form={})->
+      constructor: (@_href, @_template, @form={})->
         # delay the dependency
         @client = $injector.get 'cj'
         _template = @_template
@@ -22,6 +22,9 @@ angular.module('Collection').provider('Template', ->
 
       promptFor: (key)->
         @datum(key)?.prompt
+
+      href: ->
+        @_href
 
       submit: (done=()->)->
         @client @href, method: 'POST', data: @form
