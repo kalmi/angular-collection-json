@@ -1,4 +1,6 @@
-angular.module('Collection').value('cjOriginal', { "collection": {
+angular.module('Collection').value('cjOriginal',
+  {
+    "collection": {
     "version": "1.0",
     "href": "http://example.org/friends/",
 

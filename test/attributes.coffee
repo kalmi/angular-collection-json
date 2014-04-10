@@ -16,36 +16,47 @@ describe "Attributes", ->
       scope.$digest()
 
     describe "[collection](http://amundsen.com/media-types/collection/format/#objects-collection)", ->
+
       it "should have a version", ->
         expect(collection.version()).toEqual data.collection.version
+
       it "should have an href", ->
         expect(collection.href()).toEqual data.collection.href
+
       it "should throw an exception with a bad version number", ->
         error = null
-        cj.parse(collection: version: "1.1").catch((e) -> error = e)
+        cj.parse(collection: version: "1.1").catch (e) -> error = e
         scope.$digest()
         expect(error).toBeDefined("No error was returned")
+
       it "should throw an exception with a malformed collection", ->
         error = null
-        cj.parse(version: "1.1").catch((e) -> error = e)
+        cj.parse(version: "1.1").catch (e) -> error = e
+        scope.$digest()
+        expect(error).toBeDefined("No error was returned")
+
+      it "should throw an exception with a malformed json", ->
+        error = null
+        cj.parse('invalid json').catch (e) -> error = e
         scope.$digest()
         expect(error).toBeDefined("No error was returned")
 
     describe "[error](http://amundsen.com/media-types/collection/format/#objects-error)", ->
+
       it "should have an error", ->
-        cj.parse errorData, (error, errorCol)->
-          expect(error).toBeDefined "An error was not returned"
-          expect(errorCol).toBeDefined "The collection with the error was not returned"
+        errorCol = null
+        cj.parse(errorData).catch (e) -> errorCol = e.collection
+        scope.$digest()
 
-          expect(error.title).toEqual errorData.collection.error.title
-          expect(error.code).toEqual errorData.collection.error.code
-          expect(error.message).toEqual errorData.collection.error.message
+        error = errorCol.error
+        expect(error).toBeDefined "An error was not returned"
+        expect(error.title).toEqual errorData.collection.error.title
+        expect(error.code).toEqual errorData.collection.error.code
+        expect(error.message).toEqual errorData.collection.error.message
 
-          expect(errorCol.error.title).toEqual errorData.collection.error.title
-          expect(errorCol.error.code).toEqual errorData.collection.error.code
-          expect(errorCol.error.message).toEqual errorData.collection.error.message
 
     describe "[template](http://amundsen.com/media-types/collection/format/#objects-template)", ->
+
       it "should iterate properties template", ->
         template = collection.template()
         for key, value of template.form
@@ -79,6 +90,7 @@ describe "Attributes", ->
         expect(fullName.value).toEqual "Joe"
 
     describe "[items](http://amundsen.com/media-types/collection/format/#arrays-items)", ->
+
       it "should iterate items", ->
         for idx, item of collection.items
           orig = data.collection.items[idx]
@@ -116,6 +128,7 @@ describe "Attributes", ->
           expect(searchQuery.prompt()).toEqual orig.prompt
 
     describe "[links](http://amundsen.com/media-types/collection/format/#arrays-links)", ->
+
       it "should get iterate the links", ->
         for link in collection.links
           orig = _.find data.collection.links, (_link)-> _link.rel is link.rel
@@ -131,8 +144,10 @@ describe "Attributes", ->
           expect(link.prompt()).toEqual orig.prompt
 
   describe "HTTP Requests", ->
+
     scope = $httpBackend = data = errorData = null
     cjUrl = "http://example.com/collection.json"
+    cjErrorUrl = "http://example.com/error.json"
 
 
     beforeEach inject (_$httpBackend_, cjOriginal, cjError) ->
@@ -140,32 +155,34 @@ describe "Attributes", ->
       errorData = cjError
       $httpBackend = _$httpBackend_
       $httpBackend.whenGET(cjUrl).respond data
+      $httpBackend.whenGET(cjErrorUrl).respond 401, errorData
 
-    it "returns a promise", ->
-      result = cj(cjUrl)
-      expect(typeof result.then).toBe "function"
-
-    it "parses result", ->
+    it "should parse", ->
       result = null
       cj(cjUrl).then (collection) -> result = collection
       $httpBackend.flush()
       expect(result.version()).toEqual data.collection.version
 
+    it "should invoke error callback on failure", ->
+      result = null
+      cj(cjErrorUrl).catch (error) -> result = error
+      $httpBackend.flush()
+      expect(result.collection.version()).toEqual data.collection.version
 
 
   describe "[Extensions](https://github.com/mamund/collection-json/tree/master/extensions)", ->
 
     describe "[errors](https://github.com/mamund/collection-json/blob/master/extensions/errors.md)", ->
-      it "need tests"
+      xit "need tests"
     describe "[inline](https://github.com/mamund/collection-json/blob/master/extensions/inline.md)", ->
-      it "need tests"
+      xit "need tests"
     describe "[model](https://github.com/mamund/collection-json/blob/master/extensions/model.md)", ->
-      it "need tests"
+      xit "need tests"
     describe "[template-validation](https://github.com/mamund/collection-json/blob/master/extensions/template-validation.md)", ->
-      it "need tests"
+      xit "need tests"
     describe "[templates](https://github.com/mamund/collection-json/blob/master/extensions/templates.md)", ->
-      it "need tests"
+      xit "need tests"
     describe "[uri-templates](https://github.com/mamund/collection-json/blob/master/extensions/uri-templates.md)", ->
-      it "need tests"
+      xit "need tests"
     describe "[value-types](https://github.com/mamund/collection-json/blob/master/extensions/value-types.md)", ->
-      it "need tests"
+      xit "need tests"

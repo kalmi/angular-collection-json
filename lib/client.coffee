@@ -1,33 +1,37 @@
 
-angular.module('Collection', []).factory('cj', (Collection, $http, $q)->
+angular.module('Collection', []).factory 'cj', (Collection, $http, $q)->
   ret = (href, options, done)->
     if typeof options is 'function'
       done = options
       options = {}
 
     $http.get(href, options).then(
-      (res) -> ret.parse(res.data)
+      (res) -> ret.parse res.data
+      (res) ->
+        ret.parse(res.data).then (collection) ->
+          e = new Error 'request failed'
+          e.response = res
+          e.collection = collection
+          $q.reject e
     )
 
-  # Expose parse
   ret.parse = (source)->
-    deferred = $q.defer()
-    try
-      collectionObj = new Collection source
-      deferred.resolve collectionObj
-    catch e
-      deferred.reject e
+    if _.isString source
+      try
+        source = JSON.parse source
+      catch e
+        return $q.reject e
 
-    #error = null
-    #if _error = collectionObj.error
-      #error = new Error
-      #error.title = _error.title
-      #error.message = _error.message
-      #error.code = _error.code
-      #error.body = JSON.stringify source
+    if source.collection?.version isnt "1.0"
+      return $q.reject new Error "Collection does not conform to Collection+JSON 1.0 Spec"
 
-    deferred.promise
+    collectionObj = new Collection source.collection
+
+    if collectionObj.error
+      e = new Error('Parsed collection contains errors')
+      e.collection = collectionObj
+      $q.reject e
+    else
+      $q.when collectionObj
 
   return ret
-
-)

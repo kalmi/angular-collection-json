@@ -2,11 +2,7 @@ angular.module('Collection').provider('Collection', ->
   $get: (Link, Item, Query, Template) ->
     class Collection
       constructor: (collection)->
-        # Lets verify that it's a valid collection
-        if collection?.collection?.version isnt "1.0"
-          throw new Error "Collection does not conform to Collection+JSON 1.0 Spec"
-
-        @_collection = collection.collection
+        @_collection = collection
         @_links = null
         @_queries = null
         @_items = null
