@@ -1,7 +1,9 @@
-angular.module('Collection').provider('Link', ->
-  $get: ->
+angular.module('Collection').provider 'Link', ->
+  $get: ($injector) ->
     class Link
       constructor: (@_link)->
+        # delay the dependency
+        @client = $injector.get 'cj'
 
       href: ->
         @_link.href
@@ -12,10 +14,5 @@ angular.module('Collection').provider('Link', ->
       prompt: ->
         @_link.prompt
 
-      follow: (done=()->)->
-        options = {}
-
-        http.get @_link.href, options, (error, collection)->
-          return done error if error
-          client.parse collection, done
-)
+      follow: ->
+        @client @_link.href

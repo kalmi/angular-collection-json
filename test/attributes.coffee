@@ -143,6 +143,7 @@ describe "Attributes", ->
           expect(link.rel()).toEqual orig.rel
           expect(link.prompt()).toEqual orig.prompt
 
+
   describe "HTTP Requests", ->
 
     scope = $httpBackend = data = errorData = null
@@ -169,6 +170,16 @@ describe "Attributes", ->
       $httpBackend.flush()
       expect(result.collection.version()).toEqual data.collection.version
 
+    it "should follow links with new collections", ->
+      result = null
+      cj(cjUrl).then (collection) -> result = collection
+      $httpBackend.flush()
+      for orig in data.collection.links
+        link = result.link(orig.rel)
+        $httpBackend.whenGET(link.href()).respond data
+        link.follow().then (collection) ->
+          expect(collection.version()).toEqual data.collection.version
+      $httpBackend.flush()
 
   describe "[Extensions](https://github.com/mamund/collection-json/tree/master/extensions)", ->
 
