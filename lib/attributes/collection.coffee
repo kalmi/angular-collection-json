@@ -18,41 +18,27 @@ angular.module('Collection').provider('Collection', ->
       links: ->
         return @_links if @_links
 
-        @_links = links = []
-
-        _.each @_collection.links, (link)->
-          links.push new Link link
-        @_links
+        @_links = (new Link l for l in (@_collection.links || []))
 
       link: (rel)->
-        x = _.find @links(), (link)-> link.rel() is rel
+        for l in @links()
+          return l if l.rel() == rel
 
       items: ->
         return @_items if @_items
 
-        @_items = items = []
-
-        _.each @_collection.items, (item)->
-          items.push new Item item
-        @_items
+        @_items = (new Item i for i in (@_collection.items || []))
 
       item: (href)->
-        _.find @items(), (item)-> item.href() is href
+        for i in @items()
+          return i if i.href() == href
 
       queries: ->
-        queries = []
-
-        _.each @_collection.queries||[], (query)->
-          queries.push new Query query
-        queries
+        new Query q for q in (@_collection.queries || [])
 
       query: (rel)->
-        query = _.find @_collection.queries||[], (query)->
-          query.rel is rel
-        return null if not query
-
-        # Don't cache it since we allow you to set parameters and submit it
-        new Query query
+        for q in @_collection.queries || []
+          return new Query q if q.rel == rel
 
       # TODO support multiple templates:
       # https://github.com/mamund/collection-json/blob/master/extensions/templates.md
