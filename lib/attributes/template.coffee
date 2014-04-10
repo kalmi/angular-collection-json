@@ -1,7 +1,9 @@
 angular.module('Collection').provider('Template', ->
-  $get: ->
+  $get: ($injector) ->
     class Template
       constructor: (@href, @_template, @form={})->
+        # delay the dependency
+        @client = $injector.get 'cj'
         _template = @_template
         _form = @form
 
@@ -22,16 +24,6 @@ angular.module('Collection').provider('Template', ->
         @datum(key)?.prompt
 
       submit: (done=()->)->
-        form = _.map @form, (value, name)->
-          name: name, value: value
-
-        options =
-          body:
-            template:
-              data: form
-
-        http.post @href, options, (error, collection)->
-          return done error if error
-          client.parse collection, done
+        @client @href, method: 'POST', data: @form
 
 )

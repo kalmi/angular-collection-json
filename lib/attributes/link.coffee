@@ -15,4 +15,4 @@ angular.module('Collection').provider 'Link', ->
         @_link.prompt
 
       follow: ->
-        @client @_link.href
+        @client @href()

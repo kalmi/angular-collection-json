@@ -92,12 +92,12 @@ describe "Attributes", ->
     describe "[items](http://amundsen.com/media-types/collection/format/#arrays-items)", ->
 
       it "should iterate items", ->
-        for idx, item of collection.items
+        for idx, item of collection.items()
           orig = data.collection.items[idx]
-          expect(item.href).toEqual orig.href
+          expect(item.href()).toEqual orig.href
 
       it "should get a value", ->
-        for idx, item of collection.items
+        for idx, item of collection.items()
           orig = data.collection.items[idx]
           for datum in orig.data
             itemDatum = item.get(datum.name)
@@ -107,17 +107,15 @@ describe "Attributes", ->
     describe "[queries](http://amundsen.com/media-types/collection/format/#arrays-queries)", ->
 
       it "should iterate queries", ->
-        for query in collection.queries
-          orig = _.find data.collection.queries, (_query)-> _query.rel is query.rel
-          expect(query.href).toEqual orig.href
-          expect(query.rel).toEqual orig.rel
-          expect(query.prompt).toEqual orig.prompt
+        for query in collection.queries()
+          orig = _.find data.collection.queries, (q)-> q.rel is query.rel()
+          expect(query.href()).toEqual orig.href
+          expect(query.rel()).toEqual orig.rel
+          expect(query.prompt()).toEqual orig.prompt
 
       it "should be able to set values", ->
         searchQuery = collection.query "search"
-
         searchQuery.set "search", "Testing"
-
         expect(searchQuery.get("search")).toEqual "Testing"
 
       it "should get a query by rel", ->
@@ -175,9 +173,52 @@ describe "Attributes", ->
       cj(cjUrl).then (collection) -> result = collection
       $httpBackend.flush()
       for orig in data.collection.links
-        link = result.link(orig.rel)
+        link = result.link orig.rel
         $httpBackend.whenGET(link.href()).respond data
         link.follow().then (collection) ->
+          expect(collection.version()).toEqual data.collection.version
+      $httpBackend.flush()
+
+    it "should respond to query requests with new collections", ->
+      result = null
+      cj(cjUrl).then (collection) -> result = collection
+      $httpBackend.flush()
+      for orig in data.collection.queries
+        query = result.query orig.rel
+        $httpBackend.whenGET(new RegExp(query.href())).respond data
+        query.submit().then (collection) ->
+          expect(collection.version()).toEqual data.collection.version
+      $httpBackend.flush()
+
+    it "should respond to template submissions with new collections", ->
+      result = null
+      cj(cjUrl).then (collection) -> result = collection
+      $httpBackend.flush()
+      template = result.template()
+      $httpBackend.whenPOST(template.href, template.form).respond data
+      template.submit().then (collection) ->
+        expect(collection.version()).toEqual data.collection.version
+      $httpBackend.flush()
+
+    it "should load items with new collections", ->
+      result = null
+      cj(cjUrl).then (collection) -> result = collection
+      $httpBackend.flush()
+      for orig in data.collection.items
+        item = result.item orig.href
+        $httpBackend.whenGET(item.href()).respond data
+        item.load().then (collection) ->
+          expect(collection.version()).toEqual data.collection.version
+      $httpBackend.flush()
+
+    it "should delete items with new collections", ->
+      result = null
+      cj(cjUrl).then (collection) -> result = collection
+      $httpBackend.flush()
+      for orig in data.collection.items
+        item = result.item orig.href
+        $httpBackend.whenDELETE(item.href()).respond data
+        item.remove().then (collection) ->
           expect(collection.version()).toEqual data.collection.version
       $httpBackend.flush()
 

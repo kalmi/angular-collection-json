@@ -1,7 +1,9 @@
 angular.module('Collection').provider('Item', ->
-  $get: (Link, Template) ->
+  $get: (Link, Template, $injector) ->
     class Item
       constructor: (@_item, @_template)->
+        # delay the dependency
+        @client = $injector.get 'cj'
         @_links = {}
         @_data = null
 
@@ -18,12 +20,8 @@ angular.module('Collection').provider('Item', ->
       promptFor: (key)->
         @datum(key)?.prompt
 
-      load: (done)->
-        options = {}
-
-        http.get @_item.href, options, (error, collection)->
-          return done error if error
-          client.parse collection, done
+      load: ->
+        @client @href()
 
       links: ()->
         @_item.links
@@ -42,10 +40,7 @@ angular.module('Collection').provider('Item', ->
         template.href = @_item.href
         new Template template, @data()
 
-      remove: (done)->
-        options = {}
-        http.del @_item.href, options, (error, collection)->
-          return done error if error
-          client.parse collection, done
+      remove: ()->
+        @client @href(), method: 'DELETE'
 
 )

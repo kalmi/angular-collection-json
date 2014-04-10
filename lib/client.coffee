@@ -1,11 +1,8 @@
 
 angular.module('Collection', []).factory 'cj', (Collection, $http, $q)->
-  ret = (href, options, done)->
-    if typeof options is 'function'
-      done = options
-      options = {}
-
-    $http.get(href, options).then(
+  ret = (href, options)->
+    config = _.extend {url: href}, options
+    $http(config).then(
       (res) -> ret.parse res.data
       (res) ->
         ret.parse(res.data).then (collection) ->

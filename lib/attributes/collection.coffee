@@ -37,7 +37,7 @@ angular.module('Collection').provider('Collection', ->
         @_items
 
       item: (href)->
-        _.find @items, (item)-> item.href is href
+        _.find @items(), (item)-> item.href() is href
 
       queries: ->
         queries = []
@@ -57,6 +57,6 @@ angular.module('Collection').provider('Collection', ->
       # TODO support multiple templates:
       # https://github.com/mamund/collection-json/blob/master/extensions/templates.md
 
-      template: (name)->
+      template: ->
         new Template @_collection.href, @_collection.template
 )
