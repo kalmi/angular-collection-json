@@ -59,4 +59,7 @@ angular.module('Collection').provider('Collection', ->
 
       template: ->
         new Template @_collection.href, @_collection.template
+
+      meta: (name)->
+        @_collection.meta?[name]
 )
