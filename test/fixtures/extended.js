@@ -56,7 +56,13 @@ angular.module('Collection').value('cjExtended',
 
     "template": {
       "data": [
-        {"name": "full-name", "value": "Joe", "prompt": "Full Name"},
+        {
+          "name": "full-name",
+          "value": "Joe",
+          "prompt": "Full Name",
+          errors: [
+            "Cannot be Joe"
+          ]},
         {"name": "email", "value": "", "prompt": "Email"},
         {"name": "blog", "value": "", "prompt": "Blog"},
         {"name": "avatar", "value": "", "prompt": "Avatar"}

@@ -59,7 +59,7 @@ describe "Attributes", ->
 
       it "should iterate properties template", ->
         template = collection.template()
-        for key, value of template.form
+        for key, value of template.form()
           orig = _.find data.collection.template.data, (datum)-> datum.name is key
           expect(key).toEqual orig.name
           expect(value).toEqual orig.value
@@ -88,6 +88,17 @@ describe "Attributes", ->
         expect(fullName.name).toEqual "full-name"
         expect(fullName.prompt).toEqual "Full Name"
         expect(fullName.value).toEqual "Joe"
+
+      it "should create a form from set values", ->
+        blog = "joe.blogger.com"
+        email = "test@test.com"
+        newItem = collection.template()
+
+        newItem.set 'blog', blog
+        newItem.set 'email', email
+        form = newItem.form()
+        expect(form.blog).toEqual blog
+        expect(form.email).toEqual email
 
     describe "[items](http://amundsen.com/media-types/collection/format/#arrays-items)", ->
 
@@ -195,7 +206,7 @@ describe "Attributes", ->
       cj(cjUrl).then (collection) -> result = collection
       $httpBackend.flush()
       template = result.template()
-      $httpBackend.whenPOST(template.href, template.form).respond data
+      $httpBackend.whenPOST(template.href, template.form()).respond data
       template.submit().then (collection) ->
         expect(collection.version()).toEqual data.collection.version
       $httpBackend.flush()
@@ -238,6 +249,17 @@ describe "Attributes", ->
       it "returns undefined if meta not specified", ->
         delete collection._collection.meta
         expect(collection.meta(name)).toBeUndefined()
+
+    describe "[field specific errors](https://github.com/mustmodify/collection-json.rb#field-specific-errors)", ->
+
+      it "exposes errors for a given field", ->
+        template = collection.template()
+        expect(template.errorsFor 'full-name').toEqual data.collection.template.data[0].errors
+
+      it "returns empty when no errors exist for a field", ->
+        template = collection.template()
+        expect(template.errorsFor 'email').toEqual []
+
 
 
     describe "[errors](https://github.com/mamund/collection-json/blob/master/extensions/errors.md)", ->
