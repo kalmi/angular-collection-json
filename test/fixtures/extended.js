@@ -63,8 +63,18 @@ angular.module('Collection').value('cjExtended',
           errors: [
             "Cannot be Joe"
           ]},
-        {"name": "email", "value": "", "prompt": "Email"},
-        {"name": "blog", "value": "", "prompt": "Blog"},
+        {
+          "name": "email",
+          "value": "",
+          "prompt": "Email",
+          "regexp": "[^@]+@[^@]+"
+        },
+        {
+          "name": "blog",
+          "value": "",
+          "prompt": "Blog",
+          "required": true
+        },
         {"name": "avatar", "value": "", "prompt": "Avatar"}
 
       ]

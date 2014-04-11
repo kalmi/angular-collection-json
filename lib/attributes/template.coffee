@@ -31,16 +31,39 @@ angular.module('Collection').provider('Template', ->
         memo[d.name] = d.value for d in @_data
         memo
 
+      valid: ->
+        for d in @_data
+          return false if !d.valid()
+        true
+
       submit: ->
         @client @href, method: 'POST', data: @form()
 
 
       class TemplateDatum
+        empty = (str) ->
+          !str || str == ""
+
         constructor: (@_datum) ->
           @name = @_datum.name
           @value = @_datum.value
           @prompt = @_datum.prompt
           @errors = @_datum.errors || []
+
+        valid: ->
+          @validateRequired() && @validateRegexp()
+
+        validateRequired: ->
+          if @_datum.required
+            !empty @value
+          else
+            true
+
+        validateRegexp: ->
+          if @_datum.regexp
+            empty(@value) || @value.match @_datum.regexp
+          else
+            true
 
 
 )

@@ -251,14 +251,61 @@ describe "Attributes", ->
         expect(collection.meta(name)).toBeUndefined()
 
     describe "[field specific errors](https://github.com/mustmodify/collection-json.rb#field-specific-errors)", ->
+      template = null
+      beforeEach -> template = collection.template()
 
       it "exposes errors for a given field", ->
-        template = collection.template()
         expect(template.errorsFor 'full-name').toEqual data.collection.template.data[0].errors
 
       it "returns empty when no errors exist for a field", ->
-        template = collection.template()
         expect(template.errorsFor 'email').toEqual []
+
+    describe "[template validation](https://github.com/mustmodify/collection-json.rb#template-validation)", ->
+      template = null
+      beforeEach -> template = collection.template()
+
+      it "is invalid when data is invalid", ->
+        expect(template.valid()).toBeFalsy()
+
+      it "is valid when data is invalid", ->
+        template.set 'blog', 'cool'
+        template.set 'email', 'foo@example.com'
+        expect(template.valid()).toBeTruthy()
+
+      describe "datum", ->
+        describe "no validations", ->
+          it "is valid", ->
+            expect(template.datum('full-name').valid()).toBeTruthy()
+
+        describe "required", ->
+          it "is invalid when undefined", ->
+            template.set 'blog', undefined
+            expect(template.datum('blog').valid()).toBeFalsy()
+
+          it "is invalid when empty", ->
+            template.set 'blog', ''
+            expect(template.datum('blog').valid()).toBeFalsy()
+
+          it "is valid when not empty", ->
+            template.set 'blog', 'hello'
+            expect(template.datum('blog').valid()).toBeTruthy()
+
+        describe "regexp", ->
+          it "is valid when undefined", ->
+            template.set 'email', undefined
+            expect(template.datum('email').valid()).toBeTruthy()
+
+          it "is valid when empty", ->
+            template.set 'email', ''
+            expect(template.datum('email').valid()).toBeTruthy()
+
+          it "is valid when matching", ->
+            template.set 'email', 'foo@example.com'
+            expect(template.datum('email').valid()).toBeTruthy()
+
+          it "is invalid when not matching", ->
+            template.set 'email', 'nomatch'
+            expect(template.datum('email').valid()).toBeFalsy()
 
 
 
