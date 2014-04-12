@@ -48,6 +48,7 @@ angular.module('Collection').provider('Template', ->
           @name = @_datum.name
           @value = @_datum.value
           @prompt = @_datum.prompt
+          @options = @_datum.options || []
           @errors = @_datum.errors || []
 
         valid: ->
