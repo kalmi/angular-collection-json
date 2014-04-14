@@ -75,8 +75,16 @@ angular.module('Collection').value('cjExtended',
           "prompt": "Blog",
           "required": true
         },
-        {"name": "avatar", "value": "", "prompt": "Avatar"}
-
+        {
+          "name": "avatar",
+          "value": "",
+          "prompt": "Avatar",
+          "options": [
+            { "prompt": "Blue Barricuda", "value": "bb" },
+            { "prompt": "Purple Parrot", "value": "pp" },
+            { "prompt": "Red Jaguars", "value": "rj" }
+          ]
+        }
       ]
     },
 

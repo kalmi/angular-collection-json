@@ -23,6 +23,9 @@ angular.module('Collection').provider('Template', ->
       errorsFor: (key)->
         @datum(key)?.errors
 
+      optionsFor: (key)->
+        @datum(key)?.options
+
       href: ->
         @_href
 

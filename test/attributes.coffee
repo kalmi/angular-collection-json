@@ -307,6 +307,17 @@ describe "Attributes", ->
             template.set 'email', 'nomatch'
             expect(template.datum('email').valid()).toBeFalsy()
 
+    describe "[template options](https://github.com/mustmodify/collection-json.rb#options)", ->
+      template = null
+      beforeEach -> template = collection.template()
+
+      it "exposes options for a given field", ->
+        expect(template.optionsFor 'avatar').toEqual data.collection.template.data[3].options
+
+      it "returns empty when no options exist for a field", ->
+        expect(template.optionsFor 'email').toEqual []
+
+
 
 
     describe "[errors](https://github.com/mamund/collection-json/blob/master/extensions/errors.md)", ->
@@ -314,10 +325,6 @@ describe "Attributes", ->
     describe "[inline](https://github.com/mamund/collection-json/blob/master/extensions/inline.md)", ->
       xit "need tests"
     describe "[model](https://github.com/mamund/collection-json/blob/master/extensions/model.md)", ->
-      xit "need tests"
-    describe "[template-validation](https://github.com/mamund/collection-json/blob/master/extensions/template-validation.md)", ->
-      xit "need tests"
-    describe "[templates](https://github.com/mamund/collection-json/blob/master/extensions/templates.md)", ->
       xit "need tests"
     describe "[uri-templates](https://github.com/mamund/collection-json/blob/master/extensions/uri-templates.md)", ->
       xit "need tests"
