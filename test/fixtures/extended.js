@@ -82,7 +82,22 @@ angular.module('Collection').value('cjExtended',
           "options": [
             { "prompt": "Blue Barricuda", "value": "bb" },
             { "prompt": "Purple Parrot", "value": "pp" },
-            { "prompt": "Red Jaguars", "value": "rj" }
+            { "prompt": "Red Jaguar", "value": "rj" }
+          ]
+        },
+        {
+          "name": "color",
+          "value": "",
+          "prompt": "Favorite Color",
+          "options": [
+            { "prompt": "White", "value": "white" },
+            {
+              "prompt": "Red",
+              "value": "red",
+              "conditions": [
+                { "field" : "avatar", "value": "rj" }
+              ]
+            }
           ]
         }
       ]

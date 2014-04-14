@@ -24,7 +24,16 @@ angular.module('Collection').provider('Template', ->
         @datum(key)?.errors
 
       optionsFor: (key)->
-        @datum(key)?.options
+        options = @datum(key)?.options
+        o for o in options when @conditionsMatch(o.conditions)
+
+      conditionsMatch: (conditions) ->
+        return true if !conditions || !conditions.length
+
+        match = true
+        for c in conditions
+          match &&= @get(c.field) == c.value
+        match
 
       href: ->
         @_href
@@ -68,6 +77,4 @@ angular.module('Collection').provider('Template', ->
             empty(@value) || @value.match @_datum.regexp
           else
             true
-
-
 )

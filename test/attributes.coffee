@@ -317,7 +317,16 @@ describe "Attributes", ->
       it "returns empty when no options exist for a field", ->
         expect(template.optionsFor 'email').toEqual []
 
+      it "removes invalid options", ->
+        options = template.optionsFor('color')
+        expect(options[0].prompt).toEqual "White"
+        expect(options.length).toEqual 1
 
+      it "includes valid options", ->
+        template.set 'avatar', 'rj'
+        options = template.optionsFor('color')
+        expect(options[1].prompt).toEqual "Red"
+        expect(options.length).toEqual 2
 
 
     describe "[errors](https://github.com/mamund/collection-json/blob/master/extensions/errors.md)", ->
