@@ -278,34 +278,45 @@ describe "Attributes", ->
             expect(template.datum('full-name').valid()).toBeTruthy()
 
         describe "required", ->
+          datum = null
+          beforeEach -> datum = template.datum('blog')
+
           it "is invalid when undefined", ->
             template.set 'blog', undefined
-            expect(template.datum('blog').valid()).toBeFalsy()
+            expect(datum.valid()).toBeFalsy()
+            expect(datum.validationErrors.required).toBe true
 
           it "is invalid when empty", ->
             template.set 'blog', ''
-            expect(template.datum('blog').valid()).toBeFalsy()
+            expect(datum.valid()).toBeFalsy()
+            expect(datum.validationErrors.required).toBe true
 
           it "is valid when not empty", ->
             template.set 'blog', 'hello'
-            expect(template.datum('blog').valid()).toBeTruthy()
+            expect(datum.valid()).toBeTruthy()
+            expect(datum.validationErrors.required).toBeFalsy()
 
         describe "regexp", ->
+          datum = null
+          beforeEach -> datum = template.datum('email')
+
           it "is valid when undefined", ->
             template.set 'email', undefined
-            expect(template.datum('email').valid()).toBeTruthy()
+            expect(datum.valid()).toBeTruthy()
 
           it "is valid when empty", ->
             template.set 'email', ''
-            expect(template.datum('email').valid()).toBeTruthy()
+            expect(datum.valid()).toBeTruthy()
 
           it "is valid when matching", ->
             template.set 'email', 'foo@example.com'
-            expect(template.datum('email').valid()).toBeTruthy()
+            expect(datum.valid()).toBeTruthy()
+            expect(datum.validationErrors.regexp).toBeFalsy()
 
           it "is invalid when not matching", ->
             template.set 'email', 'nomatch'
-            expect(template.datum('email').valid()).toBeFalsy()
+            expect(datum.valid()).toBeFalsy()
+            expect(datum.validationErrors.regexp).toBe true
 
     describe "[template options](https://github.com/mustmodify/collection-json.rb#options)", ->
       template = null

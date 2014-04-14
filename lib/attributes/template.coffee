@@ -62,9 +62,16 @@ angular.module('Collection').provider('Template', ->
           @prompt = @_datum.prompt
           @options = @_datum.options || []
           @errors = @_datum.errors || []
+          @validationErrors = []
 
         valid: ->
-          @validateRequired() && @validateRegexp()
+          @validationErrors =
+            required: !@validateRequired()
+            regexp: !@validateRegexp()
+
+          for name, isError of @validationErrors
+            return false if isError
+          true
 
         validateRequired: ->
           if @_datum.required
