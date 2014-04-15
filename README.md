@@ -16,7 +16,7 @@ Example
 -------
 
 ```js
-var cj = $injectior.get('cj');
+var cj = $injector.get('cj');
 
 // Start at the root of our api
 cj("http://example.com").then(function(collection){
