@@ -1,3 +1,46 @@
+angular.module('Collection', []).factory('cj', function(Collection, $http, $q) {
+  var ret;
+  ret = function(href, options) {
+    var config;
+    config = _.extend({
+      url: href
+    }, options);
+    return $http(config).then(function(res) {
+      return ret.parse(res.data);
+    }, function(res) {
+      return ret.parse(res.data).then(function(collection) {
+        var e;
+        e = new Error('request failed');
+        e.response = res;
+        e.collection = collection;
+        return $q.reject(e);
+      });
+    });
+  };
+  ret.parse = function(source) {
+    var collectionObj, e, _ref;
+    if (_.isString(source)) {
+      try {
+        source = JSON.parse(source);
+      } catch (_error) {
+        e = _error;
+        return $q.reject(e);
+      }
+    }
+    if (((_ref = source.collection) != null ? _ref.version : void 0) !== "1.0") {
+      return $q.reject(new Error("Collection does not conform to Collection+JSON 1.0 Spec"));
+    }
+    collectionObj = new Collection(source.collection);
+    if (collectionObj.error) {
+      e = new Error('Parsed collection contains errors');
+      e.collection = collectionObj;
+      return $q.reject(e);
+    } else {
+      return $q.when(collectionObj);
+    }
+  };
+  return ret;
+});
 angular.module('Collection').provider('Collection', function() {
   return {
     $get: function(Link, Item, Query, Template) {
@@ -113,7 +156,6 @@ angular.module('Collection').provider('Collection', function() {
     }
   };
 });
-
 angular.module('Collection').provider('Item', function() {
   return {
     $get: function(Link, Template, $injector) {
@@ -193,7 +235,6 @@ angular.module('Collection').provider('Item', function() {
     }
   };
 });
-
 angular.module('Collection').provider('Link', function() {
   return {
     $get: function($injector) {
@@ -226,7 +267,6 @@ angular.module('Collection').provider('Link', function() {
     }
   };
 });
-
 angular.module('Collection').provider('Query', function() {
   return {
     $get: function($injector) {
@@ -294,7 +334,6 @@ angular.module('Collection').provider('Query', function() {
     }
   };
 });
-
 angular.module('Collection').provider('Template', function() {
   return {
     $get: function($injector) {
