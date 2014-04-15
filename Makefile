@@ -14,11 +14,12 @@ bower_components: node_modules
 	./node_modules/bower/bin/bower install
 
 test: bower_components
-	./node_modules/karma/bin/karma start --single-run
+	@./node_modules/karma/bin/karma start --single-run
 
 dist_test: compile
 	@echo "Testing compiled"
-	./node_modules/karma/bin/karma start karma-dist.conf.js --single-run
+	@TEST_TARGETS="dist/angular-collection-json.min.js" \
+		./node_modules/karma/bin/karma start --single-run
 
 dist:
 	@mkdir -p dist

@@ -1,5 +1,24 @@
 module.exports = function(config) {
   'use strict';
+  var testTargets = [
+    'lib/client.coffee',
+    'lib/attributes/*.coffee',
+  ], testFiles;
+
+  if (process.env.TEST_TARGETS) {
+    testTargets = process.env.TEST_TARGETS.split(':');
+  }
+
+  testFiles = [].concat([
+    'bower_components/angular/angular.js',
+    'bower_components/angular-mocks/angular-mocks.js',
+    'bower_components/lodash/dist/lodash.underscore.js'
+  ],
+  testTargets,
+  [
+    'test/fixtures/*.js',
+    'test/**/*.coffee'
+  ]);
 
   config.set({
 
@@ -7,16 +26,7 @@ module.exports = function(config) {
 
     reportSlowerThan: 50,
 
-    files: [
-      'bower_components/angular/angular.js',
-      'bower_components/angular-mocks/angular-mocks.js',
-      'bower_components/lodash/dist/lodash.underscore.js',
-      'lib/client.coffee',
-      'lib/attributes/*.coffee',
-      'test/**/*.coffee',
-      'test/fixtures/*.js',
-    ],
-
+    files: testFiles,
 
     exclude: [
       'test/acceptance/**/*'
