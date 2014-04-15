@@ -1,12 +1,13 @@
 {
   "name": "angular-collection-json",
-  "version": "0.0.1",
-  "homepage": "",
+  "version": "0.1.0",
+  "homepage": "https://github.com/Medycation/angular-collection-json",
   "authors": [
-    "jasonaden"
+    "jasonaden",
+    "statianzo"
   ],
   "description": "Collection+JSON parsing for AngularJS",
-  "main": "index.js",
+  "main": "dist/angular-collection-json.js",
   "keywords": [
     "angular",
     "collection+json",
@@ -17,11 +18,16 @@
   "ignore": [
     "node_modules",
     "bower_components",
-    "test"
+    "test",
+    "package.json",
+    "karma.conf.js",
+    "Makefile"
   ],
+  "dependencies": {
+    "lodash": "~2.4.1"
+  },
   "devDependencies": {
     "angular": "~1.2.16",
-    "angular-mocks": "~1.2.16",
-    "lodash": "~2.4.1"
+    "angular-mocks": "~1.2.16"
   }
 }
