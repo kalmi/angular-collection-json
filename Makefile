@@ -5,7 +5,7 @@ define SAUCE_TARGETS
 
 endef
 
-all: test compile
+all: test compile dist_test
 
 node_modules:
 	npm install
@@ -16,22 +16,40 @@ bower_components: node_modules
 test: bower_components
 	./node_modules/karma/bin/karma start --single-run
 
+dist_test: compile
+	@echo "Testing compiled"
+	./node_modules/karma/bin/karma start karma-dist.conf.js --single-run
+
 dist:
-		@mkdir -p dist
+	@mkdir -p dist
 
 dist/angular-collection-json.js: node_modules dist lib
-		@echo "Compiling coffee..."
-		@./node_modules/coffee-script/bin/coffee \
-			--bare \
-			--compile \
-			--no-header \
-			--print \
-			--join \
-			lib/client.coffee \
-			lib/attributes/*.coffee \
-			> dist/angular-collection-json.js
+	@echo "Compiling coffee..."
+	@./node_modules/coffee-script/bin/coffee \
+		--bare \
+		--compile \
+		--no-header \
+		--print \
+		lib/client.coffee \
+		lib/attributes/*.coffee \
+		> dist/angular-collection-json.js
 
-compile: dist/angular-collection-json.js
+dist/angular-collection-json.ngmin.js: dist/angular-collection-json.js
+	@echo "ngminifying..."
+	@./node_modules/ngmin/bin/ngmin \
+		< dist/angular-collection-json.js\
+		> dist/angular-collection-json.ngmin.js\
+
+dist/angular-collection-json.min.js: dist/angular-collection-json.ngmin.js
+	@echo "Uglifying..."
+	@./node_modules/uglify-js/bin/uglifyjs \
+		< dist/angular-collection-json.ngmin.js\
+		> dist/angular-collection-json.min.js\
+
+compile: \
+	dist/angular-collection-json.js \
+	dist/angular-collection-json.ngmin.js \
+	dist/angular-collection-json.min.js
 
 clean:
 	rm -rf dist
@@ -50,4 +68,4 @@ test_sauce:
 		-d platforms='[$(SAUCE_TARGETS)]'
 	@./node_modules/karma/bin/karma start --no-browsers
 
-.PHONY: all test test_sauce clean clean_deps
+.PHONY: all test test_sauce clean clean_deps dist_test
