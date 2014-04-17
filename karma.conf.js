@@ -3,6 +3,7 @@ module.exports = function(config) {
   var testTargets = [
     'lib/client.coffee',
     'lib/attributes/*.coffee',
+    'lib/directives/*.coffee',
   ], testFiles;
 
   if (process.env.TEST_TARGETS) {
