@@ -6,7 +6,7 @@ angular.module('Collection', []).factory('cj', [
     var ret;
     ret = function (href, options) {
       var config;
-      config = _.extend({ url: href }, options);
+      config = angular.extend({ url: href }, options);
       return $http(config).then(function (res) {
         return ret.parse(res.data);
       }, function (res) {
@@ -21,7 +21,7 @@ angular.module('Collection', []).factory('cj', [
     };
     ret.parse = function (source) {
       var collectionObj, e, _ref;
-      if (_.isString(source)) {
+      if (angular.isString(source)) {
         try {
           source = JSON.parse(source);
         } catch (_error) {
@@ -44,6 +44,45 @@ angular.module('Collection', []).factory('cj', [
     return ret;
   }
 ]);
+angular.module('Collection').service('nameFormatter', function () {
+  return {
+    dotted: function (str) {
+      var nonempty, s, segments;
+      segments = str.split(/[\]\[]/);
+      nonempty = function () {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = segments.length; _i < _len; _i++) {
+          s = segments[_i];
+          if (s !== '') {
+            _results.push(s);
+          }
+        }
+        return _results;
+      }();
+      return nonempty.join('.');
+    },
+    bracketed: function (str) {
+      var i, nonempty, s, segments, _i, _ref;
+      segments = str.split(/\./);
+      nonempty = function () {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = segments.length; _i < _len; _i++) {
+          s = segments[_i];
+          if (s !== '') {
+            _results.push(s);
+          }
+        }
+        return _results;
+      }();
+      for (i = _i = 1, _ref = nonempty.length; 1 <= _ref ? _i < _ref : _i > _ref; i = 1 <= _ref ? ++_i : --_i) {
+        nonempty[i] = '[' + nonempty[i] + ']';
+      }
+      return nonempty.join('');
+    }
+  };
+});
 angular.module('Collection').provider('Collection', function () {
   return {
     $get: [
@@ -173,11 +212,14 @@ angular.module('Collection').provider('Item', function () {
             return this._item.href;
           };
           Item.prototype.datum = function (key) {
-            var datum;
-            datum = _.find(this._item.data, function (item) {
-              return item.name === key;
-            });
-            return _.clone(datum);
+            var i, _i, _len, _ref;
+            _ref = this._item.data;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              i = _ref[_i];
+              if (i.name === key) {
+                return angular.extend({}, i);
+              }
+            }
           };
           Item.prototype.get = function (key) {
             var _ref;
@@ -261,24 +303,29 @@ angular.module('Collection').provider('Query', function () {
         var Query;
         return Query = function () {
           function Query(_query, form) {
-            var _form;
+            var datum, _form, _i, _len, _ref;
             this._query = _query;
             this.form = form != null ? form : {};
             this.client = $injector.get('cj');
             _query = this._query;
             _form = this.form;
-            _.each(_query.data, function (datum) {
+            _ref = _query.data;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              datum = _ref[_i];
               if (_form[datum.name] == null) {
-                return _form[datum.name] = datum.value;
+                _form[datum.name] = datum.value;
               }
-            });
+            }
           }
           Query.prototype.datum = function (key) {
-            var datum;
-            datum = _.find(this._query.data || [], function (datum) {
-              return datum.name === key;
-            });
-            return _.clone(datum);
+            var d, _i, _len, _ref;
+            _ref = this._query.data || [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              d = _ref[_i];
+              if (d.name === key) {
+                return angular.extend({}, d);
+              }
+            }
           };
           Query.prototype.get = function (key) {
             return this.form[key];
@@ -316,7 +363,8 @@ angular.module('Collection').provider('Template', function () {
   return {
     $get: [
       '$injector',
-      function ($injector) {
+      'nameFormatter',
+      function ($injector, nameFormatter) {
         var Template;
         return Template = function () {
           var TemplateDatum;
@@ -333,7 +381,9 @@ angular.module('Collection').provider('Template', function () {
             }
           }
           Template.prototype.datum = function (key) {
-            return this._data[key];
+            var formatted;
+            formatted = nameFormatter.bracketed(key);
+            return this._data[formatted];
           };
           Template.prototype.get = function (key) {
             var _ref;
@@ -456,30 +506,34 @@ angular.module('Collection').provider('Template', function () {
     ]
   };
 });
-angular.module('Collection').directive('cjBind', function () {
-  return {
-    restrict: 'A',
-    require: 'ngModel',
-    link: function (scope, el, attr, ctrl) {
-      var datumName, expr;
-      datumName = attr.cjBind;
-      expr = '' + attr.ngModel + '.get(\'' + datumName + '\')';
-      if (!attr.name) {
-        el.attr('name', datumName);
-      }
-      if (!attr.id) {
-        el.attr('id', '' + scope.$id + '-' + datumName);
-      }
-      scope.$watch(expr, function (val, old) {
-        if (ctrl.$viewValue !== val) {
-          ctrl.$viewValue = val;
-          return ctrl.$render();
+angular.module('Collection').directive('cjBind', [
+  'nameFormatter',
+  function (nameFormatter) {
+    return {
+      restrict: 'A',
+      require: 'ngModel',
+      link: function (scope, el, attr, ctrl) {
+        var bracketedName, datumName, expr;
+        datumName = attr.cjBind;
+        bracketedName = nameFormatter.bracketed(datumName);
+        expr = '' + attr.ngModel + '.get(\'' + datumName + '\')';
+        if (!attr.name) {
+          el.attr('name', bracketedName);
         }
-      });
-      return ctrl.$parsers.push(function (val) {
-        ctrl.$modelValue.set(datumName, val);
-        return ctrl.$modelValue;
-      });
-    }
-  };
-});
+        if (!attr.id) {
+          el.attr('id', '' + scope.$id + '-' + bracketedName);
+        }
+        scope.$watch(expr, function (val, old) {
+          if (ctrl.$viewValue !== val) {
+            ctrl.$viewValue = val;
+            return ctrl.$render();
+          }
+        });
+        return ctrl.$parsers.push(function (val) {
+          ctrl.$modelValue.set(datumName, val);
+          return ctrl.$modelValue;
+        });
+      }
+    };
+  }
+]);
