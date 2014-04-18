@@ -7,12 +7,12 @@ angular.module('Collection').provider('Query', ->
         _query = @_query
         _form = @form
 
-        _.each _query.data, (datum)->
+        for datum in _query.data
           _form[datum.name] = datum.value if not _form[datum.name]?
 
       datum: (key)->
-        datum = _.find @_query.data or [], (datum)-> datum.name is key
-        _.clone datum
+        for d in (@_query.data || [])
+          return angular.extend {}, d if d.name == key
 
       get: (key)->
         @form[key]

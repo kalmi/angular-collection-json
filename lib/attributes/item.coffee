@@ -10,9 +10,8 @@ angular.module('Collection').provider('Item', ->
       href: ()-> @_item.href
 
       datum: (key)->
-        datum = _.find @_item.data, (item)-> item.name is key
-        # So they don't edit it
-        _.clone datum
+        for i in @_item.data
+          return angular.extend({}, i) if i.name == key
 
       get: (key)->
         @datum(key)?.value

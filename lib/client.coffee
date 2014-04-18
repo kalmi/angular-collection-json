@@ -1,7 +1,7 @@
 
 angular.module('Collection', []).factory 'cj', (Collection, $http, $q)->
   ret = (href, options)->
-    config = _.extend {url: href}, options
+    config = angular.extend {url: href}, options
     $http(config).then(
       (res) -> ret.parse res.data
       (res) ->
@@ -13,7 +13,7 @@ angular.module('Collection', []).factory 'cj', (Collection, $http, $q)->
     )
 
   ret.parse = (source)->
-    if _.isString source
+    if angular.isString source
       try
         source = JSON.parse source
       catch e
