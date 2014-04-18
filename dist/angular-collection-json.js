@@ -342,31 +342,20 @@ angular.module('Collection').provider('Template', function() {
         var TemplateDatum;
 
         function Template(_href, _template) {
-          var d;
+          var d, _i, _len, _ref;
           this._href = _href;
           this._template = _template;
           this.client = $injector.get('cj');
-          this._data = (function() {
-            var _i, _len, _ref, _results;
-            _ref = this._template.data || [];
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              d = _ref[_i];
-              _results.push(new TemplateDatum(d));
-            }
-            return _results;
-          }).call(this);
+          this._data = {};
+          _ref = this._template.data || [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            d = _ref[_i];
+            this._data[d.name] = new TemplateDatum(d);
+          }
         }
 
         Template.prototype.datum = function(key) {
-          var d, _i, _len, _ref;
-          _ref = this._data;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            d = _ref[_i];
-            if (d.name === key) {
-              return d;
-            }
-          }
+          return this._data[key];
         };
 
         Template.prototype.get = function(key) {
@@ -420,22 +409,22 @@ angular.module('Collection').provider('Template', function() {
         };
 
         Template.prototype.form = function() {
-          var d, memo, _i, _len, _ref;
+          var datum, key, memo, _ref;
           memo = {};
           _ref = this._data;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            d = _ref[_i];
-            memo[d.name] = d.value;
+          for (key in _ref) {
+            datum = _ref[key];
+            memo[datum.name] = datum.value;
           }
           return memo;
         };
 
         Template.prototype.valid = function() {
-          var d, _i, _len, _ref;
+          var datum, key, _ref;
           _ref = this._data;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            d = _ref[_i];
-            if (!d.valid()) {
+          for (key in _ref) {
+            datum = _ref[key];
+            if (!datum.valid()) {
               return false;
             }
           }
@@ -516,6 +505,12 @@ angular.module('Collection').directive('cjBind', function() {
       var datumName, expr;
       datumName = attr.cjBind;
       expr = "" + attr.ngModel + ".get('" + datumName + "')";
+      if (!attr.name) {
+        el.attr('name', datumName);
+      }
+      if (!attr.id) {
+        el.attr('id', "" + scope.$id + "-" + datumName);
+      }
       scope.$watch(expr, function(val, old) {
         if (ctrl.$viewValue !== val) {
           ctrl.$viewValue = val;
