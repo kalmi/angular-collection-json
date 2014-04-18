@@ -30,3 +30,6 @@ describe "cjBind directive", ->
     el.triggerHandler 'change'
     scope.$digest()
     expect(scope.template.get 'firstName').toEqual 'zz'
+
+  it 'sets the name of the field', ->
+    expect(el.attr 'name').toEqual 'firstName'

@@ -4,6 +4,8 @@ angular.module('Collection').directive 'cjBind', ->
   link: (scope, el, attr, ctrl) ->
     datumName = attr.cjBind
     expr = "#{attr.ngModel}.get('#{datumName}')"
+    el.attr 'name', datumName
+
     scope.$watch expr, (val, old) ->
       if ctrl.$viewValue != val
         ctrl.$viewValue = val
