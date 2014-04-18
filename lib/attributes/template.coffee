@@ -5,11 +5,13 @@ angular.module('Collection').provider('Template', ->
         # delay the dependency
         @client = $injector.get 'cj'
 
-        @_data = (new TemplateDatum d for d in (@_template.data || []))
+        @_data = {}
+
+        for d in (@_template.data || [])
+          @_data[d.name] = new TemplateDatum d
 
       datum: (key)->
-        for d in @_data
-          return d if d.name == key
+        @_data[key]
 
       get: (key)->
         @datum(key)?.value
@@ -40,12 +42,12 @@ angular.module('Collection').provider('Template', ->
 
       form: ->
         memo = {}
-        memo[d.name] = d.value for d in @_data
+        memo[datum.name] = datum.value for key, datum of @_data
         memo
 
       valid: ->
-        for d in @_data
-          return false if !d.valid()
+        for key, datum of @_data
+          return false if !datum.valid()
         true
 
       submit: ->
