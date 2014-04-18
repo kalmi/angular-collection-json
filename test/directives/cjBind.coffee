@@ -1,9 +1,10 @@
 describe "cjBind directive", ->
-  el = scope = null
+  el = scope = $compile = null
 
   beforeEach module('Collection')
 
-  beforeEach inject (Template, $rootScope, $compile)->
+  beforeEach inject (Template, $rootScope, _$compile_)->
+    $compile = _$compile_
     el = angular.element '''
     <input type="text" ng-model="template" cj-bind="firstName" />
     '''
@@ -31,5 +32,24 @@ describe "cjBind directive", ->
     scope.$digest()
     expect(scope.template.get 'firstName').toEqual 'zz'
 
-  it 'sets the name of the field', ->
+  it 'sets the name of the input', ->
     expect(el.attr 'name').toEqual 'firstName'
+
+  it 'sets the id of the input', ->
+    id = el.attr 'id'
+    expect(id).toContain scope.$id
+    expect(id).toContain el.attr 'cj-bind'
+
+  describe 'existing input name and id', ->
+    beforeEach ->
+      el = angular.element '''
+      <input type="text" id="oId" name="oName" ng-model="template" cj-bind="firstName" />
+      '''
+      $compile(el)(scope)
+
+    it 'wont overwrite the name', ->
+      expect(el.attr 'name').toEqual 'oName'
+
+    it 'wont overwrite the id', ->
+      expect(el.attr 'id').toEqual 'oId'
+
