@@ -1,12 +1,13 @@
-angular.module('Collection').directive 'cjBind', ->
+angular.module('Collection').directive 'cjBind', (nameFormatter) ->
   restrict: 'A'
   require: 'ngModel'
   link: (scope, el, attr, ctrl) ->
     datumName = attr.cjBind
+    bracketedName = nameFormatter.bracketed datumName
     expr = "#{attr.ngModel}.get('#{datumName}')"
 
-    el.attr('name', datumName) unless attr.name
-    el.attr('id', "#{scope.$id}-#{datumName}") unless attr.id
+    el.attr('name', bracketedName) unless attr.name
+    el.attr('id', "#{scope.$id}-#{bracketedName}") unless attr.id
 
     scope.$watch expr, (val, old) ->
       if ctrl.$viewValue != val

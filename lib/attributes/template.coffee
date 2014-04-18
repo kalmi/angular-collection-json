@@ -1,5 +1,5 @@
 angular.module('Collection').provider('Template', ->
-  $get: ($injector) ->
+  $get: ($injector, nameFormatter) ->
     class Template
       constructor: (@_href, @_template)->
         # delay the dependency
@@ -11,7 +11,8 @@ angular.module('Collection').provider('Template', ->
           @_data[d.name] = new TemplateDatum d
 
       datum: (key)->
-        @_data[key]
+        formatted = nameFormatter.bracketed key
+        @_data[formatted]
 
       get: (key)->
         @datum(key)?.value
