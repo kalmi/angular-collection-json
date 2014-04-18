@@ -467,3 +467,24 @@ angular.module('Collection').provider('Template', function () {
     ]
   };
 });
+angular.module('Collection').directive('cjBind', function () {
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+    link: function (scope, el, attr, ctrl) {
+      var datumName, expr;
+      datumName = attr.cjBind;
+      expr = '' + attr.ngModel + '.get(\'' + datumName + '\')';
+      scope.$watch(expr, function (val, old) {
+        if (ctrl.$viewValue !== val) {
+          ctrl.$viewValue = val;
+          return ctrl.$render();
+        }
+      });
+      return ctrl.$parsers.push(function (val) {
+        ctrl.$modelValue.set(datumName, val);
+        return ctrl.$modelValue;
+      });
+    }
+  };
+});
