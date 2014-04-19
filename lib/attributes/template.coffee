@@ -1,17 +1,31 @@
 angular.module('Collection').provider('Template', ->
   $get: ($injector, nameFormatter) ->
     class Template
-      constructor: (@_href, @_template)->
+      constructor: (@_href, @_template, @_baseName)->
         # delay the dependency
         @client = $injector.get 'cj'
 
         @_data = {}
 
+        @options = {}
+
         for d in (@_template.data || [])
           @_data[d.name] = new TemplateDatum d
+          do (d) =>
+            key = (if @_baseName then nameFormatter.key d.name else d.name)
+            Object.defineProperty @, key,
+              get: -> @get(key)
+              set: (value) ->
+                @set(key, value)
+
+            that = @
+            Object.defineProperty @options, key, do (that) =>
+              __val = null
+              get: -> __val || __val = that.optionsFor(key)
+
 
       datum: (key)->
-        formatted = nameFormatter.bracketed key
+        formatted = nameFormatter.bracketed key, @_baseName
         @_data[formatted]
 
       get: (key)->
@@ -20,15 +34,17 @@ angular.module('Collection').provider('Template', ->
       set: (key, value)->
         @datum(key)?.value = value
 
-      promptFor: (key)->
-        @datum(key)?.prompt
+      promptFor: (key, selected)->
+        if !selected
+          @datum(key)?.prompt
+        else
 
       errorsFor: (key)->
         @datum(key)?.errors
 
-      optionsFor: (key)->
+      optionsFor: (key, applyConditions = true)->
         options = @datum(key)?.options
-        o for o in options when @conditionsMatch(o.conditions)
+        if !applyConditions then options else o for o in options when @conditionsMatch(o.conditions)
 
       conditionsMatch: (conditions) ->
         return true if !conditions || !conditions.length
@@ -37,6 +53,15 @@ angular.module('Collection').provider('Template', ->
         for c in conditions
           match &&= @get(c.field) == c.value
         match
+
+      selectedOption: (key)->
+        options = @optionsFor key, false
+        val = @get(key)
+        optionVal = options.filter (option) -> option.value == val
+        optionVal?[0]
+
+      selectedOptionPrompt: (key)->
+        @selectedOption(key)?.prompt
 
       href: ->
         @_href

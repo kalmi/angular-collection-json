@@ -59,8 +59,11 @@ angular.module('Collection').service('nameFormatter', function() {
       })();
       return nonempty.join('.');
     },
-    bracketed: function(str) {
+    bracketed: function(str, base) {
       var i, nonempty, s, segments, _i, _ref;
+      if (base && str.indexOf(base) === -1) {
+        str = "" + base + "." + str;
+      }
       segments = str.split(/\./);
       nonempty = (function() {
         var _i, _len, _results;
@@ -77,6 +80,15 @@ angular.module('Collection').service('nameFormatter', function() {
         nonempty[i] = "[" + nonempty[i] + "]";
       }
       return nonempty.join('');
+    },
+    base: function(str) {
+      var _ref;
+      return (_ref = this.dotted(str)) != null ? _ref.split('.')[0] : void 0;
+    },
+    key: function(str) {
+      var segments, _ref;
+      segments = (_ref = this.dotted(str)) != null ? _ref.split('.') : void 0;
+      return segments.slice(-1)[0];
     }
   };
 });
@@ -180,8 +192,8 @@ angular.module('Collection').provider('Collection', function() {
           }
         };
 
-        Collection.prototype.template = function() {
-          return new Template(this._collection.href, this._collection.template);
+        Collection.prototype.template = function(name) {
+          return new Template(this._collection.href, this._collection.template, name);
         };
 
         Collection.prototype.meta = function(name) {
@@ -388,22 +400,49 @@ angular.module('Collection').provider('Template', function() {
       return Template = (function() {
         var TemplateDatum;
 
-        function Template(_href, _template) {
-          var d, _i, _len, _ref;
+        function Template(_href, _template, _baseName) {
+          var d, _fn, _i, _len, _ref;
           this._href = _href;
           this._template = _template;
+          this._baseName = _baseName;
           this.client = $injector.get('cj');
           this._data = {};
+          this.options = {};
           _ref = this._template.data || [];
+          _fn = (function(_this) {
+            return function(d) {
+              var key, that;
+              key = (_this._baseName ? nameFormatter.key(d.name) : d.name);
+              Object.defineProperty(_this, key, {
+                get: function() {
+                  return this.get(key);
+                },
+                set: function(value) {
+                  return this.set(key, value);
+                }
+              });
+              that = _this;
+              return Object.defineProperty(_this.options, key, (function(that) {
+                var __val;
+                __val = null;
+                return {
+                  get: function() {
+                    return __val || (__val = that.optionsFor(key));
+                  }
+                };
+              })(that));
+            };
+          })(this);
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             d = _ref[_i];
             this._data[d.name] = new TemplateDatum(d);
+            _fn(d);
           }
         }
 
         Template.prototype.datum = function(key) {
           var formatted;
-          formatted = nameFormatter.bracketed(key);
+          formatted = nameFormatter.bracketed(key, this._baseName);
           return this._data[formatted];
         };
 
@@ -417,9 +456,13 @@ angular.module('Collection').provider('Template', function() {
           return (_ref = this.datum(key)) != null ? _ref.value = value : void 0;
         };
 
-        Template.prototype.promptFor = function(key) {
+        Template.prototype.promptFor = function(key, selected) {
           var _ref;
-          return (_ref = this.datum(key)) != null ? _ref.prompt : void 0;
+          if (!selected) {
+            return (_ref = this.datum(key)) != null ? _ref.prompt : void 0;
+          } else {
+
+          }
         };
 
         Template.prototype.errorsFor = function(key) {
@@ -427,17 +470,24 @@ angular.module('Collection').provider('Template', function() {
           return (_ref = this.datum(key)) != null ? _ref.errors : void 0;
         };
 
-        Template.prototype.optionsFor = function(key) {
+        Template.prototype.optionsFor = function(key, applyConditions) {
           var o, options, _i, _len, _ref, _results;
-          options = (_ref = this.datum(key)) != null ? _ref.options : void 0;
-          _results = [];
-          for (_i = 0, _len = options.length; _i < _len; _i++) {
-            o = options[_i];
-            if (this.conditionsMatch(o.conditions)) {
-              _results.push(o);
-            }
+          if (applyConditions == null) {
+            applyConditions = true;
           }
-          return _results;
+          options = (_ref = this.datum(key)) != null ? _ref.options : void 0;
+          if (!applyConditions) {
+            return options;
+          } else {
+            _results = [];
+            for (_i = 0, _len = options.length; _i < _len; _i++) {
+              o = options[_i];
+              if (this.conditionsMatch(o.conditions)) {
+                _results.push(o);
+              }
+            }
+            return _results;
+          }
         };
 
         Template.prototype.conditionsMatch = function(conditions) {
@@ -451,6 +501,21 @@ angular.module('Collection').provider('Template', function() {
             match && (match = this.get(c.field) === c.value);
           }
           return match;
+        };
+
+        Template.prototype.selectedOption = function(key) {
+          var optionVal, options, val;
+          options = this.optionsFor(key, false);
+          val = this.get(key);
+          optionVal = options.filter(function(option) {
+            return option.value === val;
+          });
+          return optionVal != null ? optionVal[0] : void 0;
+        };
+
+        Template.prototype.selectedOptionPrompt = function(key) {
+          var _ref;
+          return (_ref = this.selectedOption(key)) != null ? _ref.prompt : void 0;
         };
 
         Template.prototype.href = function() {

@@ -43,8 +43,8 @@ angular.module('Collection').provider('Collection', ->
       # TODO support multiple templates:
       # https://github.com/mamund/collection-json/blob/master/extensions/templates.md
 
-      template: ->
-        new Template @_collection.href, @_collection.template
+      template: (name) ->
+        new Template @_collection.href, @_collection.template, name
 
       meta: (name)->
         @_collection.meta?[name]
