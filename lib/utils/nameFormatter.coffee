@@ -16,6 +16,9 @@ angular.module('Collection').service 'nameFormatter', ->
   base: (str) ->
     @dotted(str)?.split('.')[0]
 
+  keys: (str, short) ->
+    @dotted(str)?.split('.')[1...]
+
   key: (str) ->
     segments = @dotted(str)?.split('.')
     segments.slice(-1)[0]

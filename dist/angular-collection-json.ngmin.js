@@ -88,6 +88,10 @@ angular.module('Collection').service('nameFormatter', function () {
       var _ref;
       return (_ref = this.dotted(str)) != null ? _ref.split('.')[0] : void 0;
     },
+    keys: function (str, short) {
+      var _ref;
+      return (_ref = this.dotted(str)) != null ? _ref.split('.').slice(1) : void 0;
+    },
     key: function (str) {
       var segments, _ref;
       segments = (_ref = this.dotted(str)) != null ? _ref.split('.') : void 0;
@@ -381,42 +385,74 @@ angular.module('Collection').provider('Template', function () {
         return Template = function () {
           var TemplateDatum;
           function Template(_href, _template, _baseName) {
-            var d, _fn, _i, _len, _ref;
+            var d, defineBase, defineOptions, definePrompt, _fn, _i, _len, _ref;
             this._href = _href;
             this._template = _template;
             this._baseName = _baseName;
             this.client = $injector.get('cj');
             this._data = {};
             this.options = {};
+            this.prompt = {};
             _ref = this._template.data || [];
             _fn = function (_this) {
-              return function (d) {
-                var key, that;
-                key = _this._baseName ? nameFormatter.key(d.name) : d.name;
-                Object.defineProperty(_this, key, {
-                  get: function () {
-                    return this.get(key);
-                  },
-                  set: function (value) {
-                    return this.set(key, value);
-                  }
-                });
+              return function (d, defineBase, defineOptions, definePrompt) {
+                var key, keys, that;
+                keys = _this._baseName ? nameFormatter.keys(d.name) : key = d.name;
+                if (_this._baseName && keys.length > 1) {
+                  keys.forEach(function (name, idx) {
+                    if (name !== keys.slice(-1)[0]) {
+                      if (!(name in defineBase)) {
+                        defineBase[name] = {};
+                        defineOptions[name] = {};
+                        definePrompt[name] = {};
+                      }
+                      defineBase = defineBase[name];
+                      defineOptions = defineOptions[name];
+                      definePrompt = definePrompt[name];
+                    }
+                    return key = name;
+                  });
+                } else if (angular.isArray(keys)) {
+                  key = keys[0];
+                }
                 that = _this;
-                return Object.defineProperty(_this.options, key, function (that) {
+                Object.defineProperty(defineBase, key, function (that, keys) {
+                  return {
+                    get: function () {
+                      return that.get(keys.join('.'));
+                    },
+                    set: function (value) {
+                      return that.set(keys.join('.'), value);
+                    }
+                  };
+                }(that, keys));
+                Object.defineProperty(defineOptions, key, function (that, keys) {
                   var __val;
                   __val = null;
                   return {
                     get: function () {
-                      return __val || (__val = that.optionsFor(key));
+                      return __val || (__val = that.optionsFor(keys.join('.')));
                     }
                   };
-                }(that));
+                }(that, keys));
+                return Object.defineProperty(definePrompt, key, function (that, keys) {
+                  var __val;
+                  __val = null;
+                  return {
+                    get: function () {
+                      return __val || (__val = that.promptFor(keys.join('.')));
+                    }
+                  };
+                }(that, keys));
               };
             }(this);
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               d = _ref[_i];
               this._data[d.name] = new TemplateDatum(d);
-              _fn(d);
+              defineBase = this;
+              defineOptions = this.options;
+              definePrompt = this.prompt;
+              _fn(d, defineBase, defineOptions, definePrompt);
             }
           }
           Template.prototype.datum = function (key) {

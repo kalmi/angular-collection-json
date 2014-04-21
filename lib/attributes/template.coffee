@@ -1,6 +1,8 @@
 angular.module('Collection').provider('Template', ->
   $get: ($injector, nameFormatter) ->
     class Template
+
+
       constructor: (@_href, @_template, @_baseName)->
         # delay the dependency
         @client = $injector.get 'cj'
@@ -8,20 +10,39 @@ angular.module('Collection').provider('Template', ->
         @_data = {}
 
         @options = {}
+        @prompt = {}
 
         for d in (@_template.data || [])
           @_data[d.name] = new TemplateDatum d
-          do (d) =>
-            key = (if @_baseName then nameFormatter.key d.name else d.name)
-            Object.defineProperty @, key,
-              get: -> @get(key)
-              set: (value) ->
-                @set(key, value)
+          defineBase = @
+          defineOptions = @options
+          definePrompt = @prompt
+          do (d, defineBase, defineOptions, definePrompt) =>
+            keys = (if @_baseName then nameFormatter.keys d.name else key = d.name)
+            if @_baseName && keys.length > 1
+              keys.forEach (name, idx) ->
+                if name != keys[-1..][0]
+                  if name not of defineBase
+                    defineBase[name] = {}
+                    defineOptions[name] = {}
+                    definePrompt[name] = {}
+                  defineBase = defineBase[name]
+                  defineOptions = defineOptions[name]
+                  definePrompt = definePrompt[name]
+                key = name
+            else if angular.isArray(keys)
+              key = keys[0]
 
             that = @
-            Object.defineProperty @options, key, do (that) =>
+            Object.defineProperty defineBase, key, do (that, keys) ->
+              get: -> that.get(keys.join('.'))
+              set: (value) -> that.set(keys.join('.'), value)
+            Object.defineProperty defineOptions, key, do (that, keys) ->
               __val = null
-              get: -> __val || __val = that.optionsFor(key)
+              get: -> __val || __val = that.optionsFor(keys.join('.'))
+            Object.defineProperty definePrompt, key, do (that, keys) ->
+              __val = null
+              get: -> __val || __val = that.promptFor(keys.join('.'))
 
 
       datum: (key)->
