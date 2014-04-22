@@ -100,6 +100,29 @@ describe "Attributes", ->
         expect(form.blog).toEqual blog
         expect(form.email).toEqual email
 
+      it "creates properties", ->
+        blog = "joe.blogger.com"
+        city = "hometown"
+        newItem = collection.template()
+
+        newItem.blog = blog
+        expect(newItem.blog).toEqual blog
+        expect(newItem.get 'blog').toEqual blog
+
+        newItem.address.city = city
+        expect(newItem.address.city).toEqual city
+        expect(newItem.get('address[city]')).toEqual city
+
+        expect(newItem.options.address.city).toEqual []
+        expect(newItem.prompt.address.city).toEqual 'City'
+
+      it "wont set nonexistant properties", ->
+        newItem = collection.template()
+
+        newItem.missing = 'missing'
+        expect(newItem.missing).toBeUndefined()
+        expect(newItem.get 'missing').toBeUndefined()
+
     describe "[items](http://amundsen.com/media-types/collection/format/#arrays-items)", ->
 
       it "should iterate items", ->
@@ -323,7 +346,7 @@ describe "Attributes", ->
       beforeEach -> template = collection.template()
 
       it "exposes options for a given field", ->
-        expect(template.optionsFor 'avatar').toEqual data.collection.template.data[3].options
+        expect(template.options.avatar).toEqual data.collection.template.data[3].options
 
       it "returns empty when no options exist for a field", ->
         expect(template.optionsFor 'email').toEqual []

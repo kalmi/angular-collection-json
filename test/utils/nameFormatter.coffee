@@ -1,4 +1,4 @@
-describe "nameFormatter directive", ->
+describe "nameFormatter service", ->
   formatter = null
 
   beforeEach module('Collection')

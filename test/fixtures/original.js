@@ -59,7 +59,8 @@ angular.module('Collection').value('cjOriginal',
         {"name": "full-name", "value": "Joe", "prompt": "Full Name"},
         {"name": "email", "value": "", "prompt": "Email"},
         {"name": "blog", "value": "", "prompt": "Blog"},
-        {"name": "avatar", "value": "", "prompt": "Avatar"}
+        {"name": "avatar", "value": "", "prompt": "Avatar"},
+        {"name": "address[city]", "value": "", "prompt": "City"}
 
       ]
     }

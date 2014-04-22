@@ -1,24 +1,16 @@
 angular.module('Collection').service 'nameFormatter', ->
+  bracketedSegments: (str) ->
+    str.split(/[\]\[]/).filter (s) -> s != ''
+  dottedSegments: (str) ->
+    str.split('.').filter (s) -> s != ''
+
   dotted: (str) ->
-    segments = str.split /[\]\[]/
-    nonempty = (s for s in segments when s != '')
-    nonempty.join '.'
+    segments = @bracketedSegments str
+    segments.join '.'
 
-  bracketed: (str, base) ->
-    if base && str.indexOf(base) == -1
-      str = "#{base}.#{str}"
-    segments = str.split /\./
-    nonempty = (s for s in segments when s != '')
-    for i in [1 ... nonempty.length]
-      nonempty[i] = "[#{nonempty[i]}]"
-    nonempty.join ''
+  bracketed: (str) ->
+    segments = @dottedSegments str
+    for i in [1 ... segments.length]
+      segments[i] = "[#{segments[i]}]"
+    segments.join ''
 
-  base: (str) ->
-    @dotted(str)?.split('.')[0]
-
-  keys: (str, short) ->
-    @dotted(str)?.split('.')[1...]
-
-  key: (str) ->
-    segments = @dotted(str)?.split('.')
-    segments.slice(-1)[0]
