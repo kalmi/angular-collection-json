@@ -8,7 +8,8 @@ angular.module('Collection').provider('Template', ->
         @_data = {}
 
         @options = {}
-        @prompt = {}
+        @prompts = {}
+        @errors = {}
 
         for d in (@_template.data || []) then do =>
           datum = @_data[d.name] = new TemplateDatum d
@@ -17,11 +18,11 @@ angular.module('Collection').provider('Template', ->
             get: -> datum.value
             set: (v)-> datum.value = v
 
-          defineNested @options, segments,
-            get: -> datum.options
+          defineNested @options, segments, get: -> datum.options
 
-          defineNested @prompt, segments,
-            get: -> datum.prompt
+          defineNested @prompts, segments, get: -> datum.prompt
+
+          defineNested @errors, segments, get: -> datum.errors
 
         for d in (@_template.data || [])
           segments = nameFormatter.bracketedSegments d.name
@@ -50,10 +51,7 @@ angular.module('Collection').provider('Template', ->
       conditionsMatch: (conditions) ->
         return true if !conditions || !conditions.length
 
-        match = true
-        for c in conditions
-          match &&= @get(c.field) == c.value
-        match
+        conditions.every (c) => @get(c.field) == c.value
 
       selectedOption: (key)->
         options = @optionsFor key, false

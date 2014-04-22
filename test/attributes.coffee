@@ -114,7 +114,7 @@ describe "Attributes", ->
         expect(newItem.get('address[city]')).toEqual city
 
         expect(newItem.options.address.city).toEqual []
-        expect(newItem.prompt.address.city).toEqual 'City'
+        expect(newItem.prompts.address.city).toEqual 'City'
 
       it "wont set nonexistant properties", ->
         newItem = collection.template()
@@ -279,6 +279,7 @@ describe "Attributes", ->
 
       it "exposes errors for a given field", ->
         expect(template.errorsFor 'full-name').toEqual data.collection.template.data[0].errors
+        expect(template.errors['full-name']).toEqual data.collection.template.data[0].errors
 
       it "returns empty when no errors exist for a field", ->
         expect(template.errorsFor 'email').toEqual []
