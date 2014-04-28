@@ -41,58 +41,58 @@ angular.module('Collection', []).factory('cj', function(Collection, $http, $q) {
   };
   return ret;
 });
+var __slice = [].slice;
+
+angular.module('Collection').service('defineNested', function() {
+  var defineNested;
+  return defineNested = function(obj, keys, prop) {
+    var head, next, tail;
+    head = keys[0], tail = 2 <= keys.length ? __slice.call(keys, 1) : [];
+    if (!tail.length) {
+      return Object.defineProperty(obj, head, prop);
+    } else {
+      next = obj[head] || (obj[head] = {});
+      return defineNested(next, tail, prop);
+    }
+  };
+});
 angular.module('Collection').service('nameFormatter', function() {
   return {
+    bracketedSegments: function(str) {
+      return str.split(/[\]\[]/).filter(function(s) {
+        return s !== '';
+      });
+    },
+    dottedSegments: function(str) {
+      return str.split('.').filter(function(s) {
+        return s !== '';
+      });
+    },
     dotted: function(str) {
-      var nonempty, s, segments;
-      segments = str.split(/[\]\[]/);
-      nonempty = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = segments.length; _i < _len; _i++) {
-          s = segments[_i];
-          if (s !== '') {
-            _results.push(s);
-          }
-        }
-        return _results;
-      })();
-      return nonempty.join('.');
+      var segments;
+      segments = this.bracketedSegments(str);
+      return segments.join('.');
     },
-    bracketed: function(str, base) {
-      var i, nonempty, s, segments, _i, _ref;
-      if (base && str.indexOf(base) === -1) {
-        str = "" + base + "." + str;
+    bracketed: function(str) {
+      var i, segments, _i, _ref;
+      segments = this.dottedSegments(str);
+      for (i = _i = 1, _ref = segments.length; 1 <= _ref ? _i < _ref : _i > _ref; i = 1 <= _ref ? ++_i : --_i) {
+        segments[i] = "[" + segments[i] + "]";
       }
-      segments = str.split(/\./);
-      nonempty = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = segments.length; _i < _len; _i++) {
-          s = segments[_i];
-          if (s !== '') {
-            _results.push(s);
-          }
-        }
-        return _results;
-      })();
-      for (i = _i = 1, _ref = nonempty.length; 1 <= _ref ? _i < _ref : _i > _ref; i = 1 <= _ref ? ++_i : --_i) {
-        nonempty[i] = "[" + nonempty[i] + "]";
-      }
-      return nonempty.join('');
-    },
-    base: function(str) {
-      var _ref;
-      return (_ref = this.dotted(str)) != null ? _ref.split('.')[0] : void 0;
-    },
-    keys: function(str, short) {
-      var _ref;
-      return (_ref = this.dotted(str)) != null ? _ref.split('.').slice(1) : void 0;
-    },
-    key: function(str) {
-      var segments, _ref;
-      segments = (_ref = this.dotted(str)) != null ? _ref.split('.') : void 0;
-      return segments.slice(-1)[0];
+      return segments.join('');
+    }
+  };
+});
+var __slice = [].slice;
+
+angular.module('Collection').service('sealNested', function() {
+  var sealNested;
+  return sealNested = function(obj, keys) {
+    var head, tail;
+    head = keys[0], tail = 2 <= keys.length ? __slice.call(keys, 1) : [];
+    if (angular.isObject(obj)) {
+      Object.seal(obj);
+      return sealNested(obj[head], tail);
     }
   };
 });
@@ -399,86 +399,66 @@ angular.module('Collection').provider('Query', function() {
 });
 angular.module('Collection').provider('Template', function() {
   return {
-    $get: function($injector, nameFormatter) {
+    $get: function($injector, nameFormatter, defineNested, sealNested) {
       var Template;
       return Template = (function() {
         var TemplateDatum;
 
-        function Template(_href, _template, _baseName) {
-          var d, defineBase, defineOptions, definePrompt, _fn, _i, _len, _ref;
+        function Template(_href, _template) {
+          var d, segments, _fn, _i, _j, _len, _len1, _ref, _ref1;
           this._href = _href;
           this._template = _template;
-          this._baseName = _baseName;
           this.client = $injector.get('cj');
           this._data = {};
           this.options = {};
-          this.prompt = {};
+          this.prompts = {};
+          this.errors = {};
           _ref = this._template.data || [];
           _fn = (function(_this) {
-            return function(d, defineBase, defineOptions, definePrompt) {
-              var key, keys, that;
-              keys = (_this._baseName ? nameFormatter.keys(d.name) : key = d.name);
-              if (_this._baseName && keys.length > 1) {
-                keys.forEach(function(name, idx) {
-                  if (name !== keys.slice(-1)[0]) {
-                    if (!(name in defineBase)) {
-                      defineBase[name] = {};
-                      defineOptions[name] = {};
-                      definePrompt[name] = {};
-                    }
-                    defineBase = defineBase[name];
-                    defineOptions = defineOptions[name];
-                    definePrompt = definePrompt[name];
-                  }
-                  return key = name;
-                });
-              } else if (angular.isArray(keys)) {
-                key = keys[0];
-              }
-              that = _this;
-              Object.defineProperty(defineBase, key, (function(that, keys) {
-                return {
-                  get: function() {
-                    return that.get(keys.join('.'));
-                  },
-                  set: function(value) {
-                    return that.set(keys.join('.'), value);
-                  }
-                };
-              })(that, keys));
-              Object.defineProperty(defineOptions, key, (function(that, keys) {
-                var __val;
-                __val = null;
-                return {
-                  get: function() {
-                    return __val || (__val = that.optionsFor(keys.join('.')));
-                  }
-                };
-              })(that, keys));
-              return Object.defineProperty(definePrompt, key, (function(that, keys) {
-                var __val;
-                __val = null;
-                return {
-                  get: function() {
-                    return __val || (__val = that.promptFor(keys.join('.')));
-                  }
-                };
-              })(that, keys));
+            return function() {
+              var datum, segments;
+              datum = _this._data[d.name] = new TemplateDatum(d);
+              segments = nameFormatter.bracketedSegments(d.name);
+              defineNested(_this, segments, {
+                get: function() {
+                  return datum.value;
+                },
+                set: function(v) {
+                  return datum.value = v;
+                }
+              });
+              defineNested(_this.options, segments, {
+                get: function() {
+                  return datum.options;
+                }
+              });
+              defineNested(_this.prompts, segments, {
+                get: function() {
+                  return datum.prompt;
+                }
+              });
+              return defineNested(_this.errors, segments, {
+                get: function() {
+                  return datum.errors;
+                }
+              });
             };
           })(this);
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             d = _ref[_i];
-            this._data[d.name] = new TemplateDatum(d);
-            defineBase = this;
-            defineOptions = this.options;
-            definePrompt = this.prompt;
-            _fn(d, defineBase, defineOptions, definePrompt);
+            _fn();
+          }
+          _ref1 = this._template.data || [];
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            d = _ref1[_j];
+            segments = nameFormatter.bracketedSegments(d.name);
+            sealNested(this, segments);
           }
         }
 
         Template.prototype.datum = function(key) {
           var formatted;
-          formatted = nameFormatter.bracketed(key, this._baseName);
+          formatted = nameFormatter.bracketed(key);
           return this._data[formatted];
         };
 
@@ -492,13 +472,9 @@ angular.module('Collection').provider('Template', function() {
           return (_ref = this.datum(key)) != null ? _ref.value = value : void 0;
         };
 
-        Template.prototype.promptFor = function(key, selected) {
+        Template.prototype.promptFor = function(key) {
           var _ref;
-          if (!selected) {
-            return (_ref = this.datum(key)) != null ? _ref.prompt : void 0;
-          } else {
-
-          }
+          return (_ref = this.datum(key)) != null ? _ref.prompt : void 0;
         };
 
         Template.prototype.errorsFor = function(key) {
@@ -527,16 +503,14 @@ angular.module('Collection').provider('Template', function() {
         };
 
         Template.prototype.conditionsMatch = function(conditions) {
-          var c, match, _i, _len;
           if (!conditions || !conditions.length) {
             return true;
           }
-          match = true;
-          for (_i = 0, _len = conditions.length; _i < _len; _i++) {
-            c = conditions[_i];
-            match && (match = this.get(c.field) === c.value);
-          }
-          return match;
+          return conditions.every((function(_this) {
+            return function(c) {
+              return _this.get(c.field) === c.value;
+            };
+          })(this));
         };
 
         Template.prototype.selectedOption = function(key) {
@@ -558,13 +532,27 @@ angular.module('Collection').provider('Template', function() {
           return this._href;
         };
 
-        Template.prototype.form = function() {
-          var datum, key, memo, _ref;
+        Template.prototype.form = function(nested) {
+          var datum, key, memo, segments, _ref, _ref1;
+          if (nested == null) {
+            nested = false;
+          }
           memo = {};
-          _ref = this._data;
-          for (key in _ref) {
-            datum = _ref[key];
-            memo[datum.name] = datum.value;
+          if (nested) {
+            _ref = this._data;
+            for (key in _ref) {
+              datum = _ref[key];
+              segments = nameFormatter.bracketedSegments(key);
+              while (segments.length) {
+                memo[segments.unshift()] = segments.length ? {} : datum.value;
+              }
+            }
+          } else {
+            _ref1 = this._data;
+            for (key in _ref1) {
+              datum = _ref1[key];
+              memo[datum.name] = datum.value;
+            }
           }
           return memo;
         };

@@ -65,9 +65,15 @@ angular.module('Collection').provider('Template', ->
       href: ->
         @_href
 
-      form: ->
+      form: (nested = false) ->
         memo = {}
-        memo[datum.name] = datum.value for key, datum of @_data
+        if nested
+          for key, datum of @_data
+            segments = nameFormatter.bracketedSegments key
+            while segments.length
+              memo[segments.unshift()] = if segments.length then {} else datum.value
+        else
+          memo[datum.name] = datum.value for key, datum of @_data
         memo
 
       valid: ->
