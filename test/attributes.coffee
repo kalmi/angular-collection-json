@@ -123,6 +123,16 @@ describe "Attributes", ->
         expect(newItem.missing).toBeUndefined()
         expect(newItem.get 'missing').toBeUndefined()
 
+      it "should create a nested form", ->
+        email = 'foo'
+        city = 'bar'
+        template = collection.template()
+        template.email = email
+        template.address.city = city
+        form = template.formNested()
+        expect(form.email).toEqual email
+        expect(form.address.city).toEqual city
+
     describe "[items](http://amundsen.com/media-types/collection/format/#arrays-items)", ->
 
       it "should iterate items", ->

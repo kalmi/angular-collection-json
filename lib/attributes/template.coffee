@@ -65,15 +65,16 @@ angular.module('Collection').provider('Template', ->
       href: ->
         @_href
 
-      form: (nested = false) ->
+      form: ->
         memo = {}
-        if nested
-          for key, datum of @_data
-            segments = nameFormatter.bracketedSegments key
-            while segments.length
-              memo[segments.unshift()] = if segments.length then {} else datum.value
-        else
-          memo[datum.name] = datum.value for key, datum of @_data
+        memo[datum.name] = datum.value for key, datum of @_data
+        memo
+
+      formNested: ->
+        memo = {}
+        for key, datum of @_data
+          segments = nameFormatter.bracketedSegments key
+          @_nestedAssign memo, segments, datum.value
         memo
 
       valid: ->
@@ -83,6 +84,15 @@ angular.module('Collection').provider('Template', ->
 
       submit: ->
         @client @href, method: 'POST', data: @form()
+
+      _nestedAssign: (obj, segments, value) ->
+        [head, tail...] = segments
+        if tail.length
+          obj[head] ||= {}
+          @_nestedAssign obj[head], tail, value
+        else
+          obj[head] = value
+          obj
 
       class TemplateDatum
         empty = (str) ->
