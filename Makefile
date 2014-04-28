@@ -71,4 +71,4 @@ test_sauce:
 		-d platforms='[$(SAUCE_TARGETS)]'
 	@./node_modules/karma/bin/karma start --no-browsers
 
-.PHONY: all test test_sauce clean clean_deps dist_test
+.PHONY: all test test_sauce clean clean_deps dist_test dist/angular-collection-json.js
