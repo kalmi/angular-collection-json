@@ -89,6 +89,11 @@ describe "Attributes", ->
         expect(fullName.prompt).toEqual "Full Name"
         expect(fullName.value).toEqual "Joe"
 
+      it "expose data in a nested structure", ->
+        newItem = collection.template()
+        blogDatum = newItem.datum("blog")
+        expect(newItem.data.blog).toEqual blogDatum
+
       it "should create a form from set values", ->
         blog = "joe.blogger.com"
         email = "test@test.com"
@@ -372,6 +377,17 @@ describe "Attributes", ->
         options = template.optionsFor('color')
         expect(options[1].prompt).toEqual "Red"
         expect(options.length).toEqual 2
+
+      it "provides selected option", ->
+        template.set 'color', 'white'
+        option = template.selectedOptions.color
+        expect(option.prompt).toEqual "White"
+
+      it "provides selected options when multiple", ->
+        template.set 'color', ['white', 'red']
+        options = template.selectedOptions.color
+        expect(options[0].prompt).toEqual "White"
+        expect(options[1].prompt).toEqual "Red"
 
 
     describe "[errors](https://github.com/mamund/collection-json/blob/master/extensions/errors.md)", ->

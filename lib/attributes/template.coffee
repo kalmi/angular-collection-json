@@ -10,6 +10,8 @@ angular.module('Collection').provider('Template', ->
         @options = {}
         @prompts = {}
         @errors = {}
+        @selectedOptions = {}
+        @data = {}
 
         for d in (@_template.data || []) then do =>
           datum = @_data[d.name] = new TemplateDatum d
@@ -23,6 +25,10 @@ angular.module('Collection').provider('Template', ->
           defineNested @prompts, segments, get: -> datum.prompt
 
           defineNested @errors, segments, get: -> datum.errors
+
+          defineNested @selectedOptions, segments, get: -> datum.selectedOptions()
+
+          defineNested @data, segments, get: -> datum
 
         for d in (@_template.data || [])
           segments = nameFormatter.bracketedSegments d.name
@@ -52,15 +58,6 @@ angular.module('Collection').provider('Template', ->
         return true if !conditions || !conditions.length
 
         conditions.every (c) => @get(c.field) == c.value
-
-      selectedOption: (key)->
-        options = @optionsFor key, false
-        val = @get(key)
-        optionVal = options.filter (option) -> option.value == val
-        optionVal?[0]
-
-      selectedOptionPrompt: (key)->
-        @selectedOption(key)?.prompt
 
       href: ->
         @_href
@@ -126,4 +123,12 @@ angular.module('Collection').provider('Template', ->
             empty(@value) || @value.match @_datum.regexp
           else
             true
+
+        selectedOptions: ->
+          if (angular.isArray @value)
+            o for o in @options when ~@value.indexOf(o.value)
+          else
+            options = (o for o in @options when o.value == @value)
+            options[0]
+
 )
