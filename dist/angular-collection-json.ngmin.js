@@ -373,6 +373,7 @@ angular.module('Collection').provider('Query', function () {
     ]
   };
 });
+var __slice = [].slice;
 angular.module('Collection').provider('Template', function () {
   return {
     $get: [
@@ -501,27 +502,24 @@ angular.module('Collection').provider('Template', function () {
           Template.prototype.href = function () {
             return this._href;
           };
-          Template.prototype.form = function (nested) {
-            var datum, key, memo, segments, _ref, _ref1;
-            if (nested == null) {
-              nested = false;
-            }
+          Template.prototype.form = function () {
+            var datum, key, memo, _ref;
             memo = {};
-            if (nested) {
-              _ref = this._data;
-              for (key in _ref) {
-                datum = _ref[key];
-                segments = nameFormatter.bracketedSegments(key);
-                while (segments.length) {
-                  memo[segments.unshift()] = segments.length ? {} : datum.value;
-                }
-              }
-            } else {
-              _ref1 = this._data;
-              for (key in _ref1) {
-                datum = _ref1[key];
-                memo[datum.name] = datum.value;
-              }
+            _ref = this._data;
+            for (key in _ref) {
+              datum = _ref[key];
+              memo[datum.name] = datum.value;
+            }
+            return memo;
+          };
+          Template.prototype.formNested = function () {
+            var datum, key, memo, segments, _ref;
+            memo = {};
+            _ref = this._data;
+            for (key in _ref) {
+              datum = _ref[key];
+              segments = nameFormatter.bracketedSegments(key);
+              this._nestedAssign(memo, segments, datum.value);
             }
             return memo;
           };
@@ -541,6 +539,17 @@ angular.module('Collection').provider('Template', function () {
               method: 'POST',
               data: this.form()
             });
+          };
+          Template.prototype._nestedAssign = function (obj, segments, value) {
+            var head, tail;
+            head = segments[0], tail = 2 <= segments.length ? __slice.call(segments, 1) : [];
+            if (tail.length) {
+              obj[head] || (obj[head] = {});
+              return this._nestedAssign(obj[head], tail, value);
+            } else {
+              obj[head] = value;
+              return obj;
+            }
           };
           TemplateDatum = function () {
             var empty;
