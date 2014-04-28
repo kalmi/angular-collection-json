@@ -415,6 +415,8 @@ angular.module('Collection').provider('Template', function() {
           this.options = {};
           this.prompts = {};
           this.errors = {};
+          this.selectedOptions = {};
+          this.data = {};
           _ref = this._template.data || [];
           _fn = (function(_this) {
             return function() {
@@ -439,9 +441,19 @@ angular.module('Collection').provider('Template', function() {
                   return datum.prompt;
                 }
               });
-              return defineNested(_this.errors, segments, {
+              defineNested(_this.errors, segments, {
                 get: function() {
                   return datum.errors;
+                }
+              });
+              defineNested(_this.selectedOptions, segments, {
+                get: function() {
+                  return datum.selectedOptions();
+                }
+              });
+              return defineNested(_this.data, segments, {
+                get: function() {
+                  return datum;
                 }
               });
             };
@@ -513,21 +525,6 @@ angular.module('Collection').provider('Template', function() {
               return _this.get(c.field) === c.value;
             };
           })(this));
-        };
-
-        Template.prototype.selectedOption = function(key) {
-          var optionVal, options, val;
-          options = this.optionsFor(key, false);
-          val = this.get(key);
-          optionVal = options.filter(function(option) {
-            return option.value === val;
-          });
-          return optionVal != null ? optionVal[0] : void 0;
-        };
-
-        Template.prototype.selectedOptionPrompt = function(key) {
-          var _ref;
-          return (_ref = this.selectedOption(key)) != null ? _ref.prompt : void 0;
         };
 
         Template.prototype.href = function() {
@@ -634,6 +631,35 @@ angular.module('Collection').provider('Template', function() {
               return empty(this.value) || this.value.match(this._datum.regexp);
             } else {
               return true;
+            }
+          };
+
+          TemplateDatum.prototype.selectedOptions = function() {
+            var o, options, _i, _len, _ref, _results;
+            if (angular.isArray(this.value)) {
+              _ref = this.options;
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                o = _ref[_i];
+                if (~this.value.indexOf(o.value)) {
+                  _results.push(o);
+                }
+              }
+              return _results;
+            } else {
+              options = (function() {
+                var _j, _len1, _ref1, _results1;
+                _ref1 = this.options;
+                _results1 = [];
+                for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                  o = _ref1[_j];
+                  if (o.value === this.value) {
+                    _results1.push(o);
+                  }
+                }
+                return _results1;
+              }).call(this);
+              return options[0];
             }
           };
 
