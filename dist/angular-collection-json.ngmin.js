@@ -58,7 +58,20 @@ angular.module('Collection').service('defineNested', function () {
     }
   };
 });
+var __slice = [].slice;
 angular.module('Collection').service('nameFormatter', function () {
+  var _nestedAssign;
+  _nestedAssign = function (obj, segments, value) {
+    var head, tail;
+    head = segments[0], tail = 2 <= segments.length ? __slice.call(segments, 1) : [];
+    if (tail.length) {
+      obj[head] || (obj[head] = {});
+      return _nestedAssign.call(this, obj[head], tail, value);
+    } else {
+      obj[head] = value;
+      return obj;
+    }
+  };
   return {
     bracketedSegments: function (str) {
       return str.split(/[\]\[]/).filter(function (s) {
@@ -82,7 +95,8 @@ angular.module('Collection').service('nameFormatter', function () {
         segments[i] = '[' + segments[i] + ']';
       }
       return segments.join('');
-    }
+    },
+    _nestedAssign: _nestedAssign
   };
 });
 var __slice = [].slice;
@@ -212,7 +226,8 @@ angular.module('Collection').provider('Item', function () {
       'Link',
       'Template',
       '$injector',
-      function (Link, Template, $injector) {
+      'nameFormatter',
+      function (Link, Template, $injector, nameFormatter) {
         var Item;
         return Item = function () {
           function Item(_item, _template) {
@@ -238,6 +253,17 @@ angular.module('Collection').provider('Item', function () {
           Item.prototype.get = function (key) {
             var _ref;
             return (_ref = this.datum(key)) != null ? _ref.value : void 0;
+          };
+          Item.prototype.fields = function (href) {
+            var item, memo, segments, _i, _len, _ref;
+            memo = {};
+            _ref = this._item.data;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              item = _ref[_i];
+              segments = nameFormatter.bracketedSegments(item.name);
+              nameFormatter._nestedAssign.call(this, memo, segments, item.value);
+            }
+            return memo;
           };
           Item.prototype.promptFor = function (key) {
             var _ref;
@@ -373,7 +399,6 @@ angular.module('Collection').provider('Query', function () {
     ]
   };
 });
-var __slice = [].slice;
 angular.module('Collection').provider('Template', function () {
   return {
     $get: [
@@ -518,7 +543,7 @@ angular.module('Collection').provider('Template', function () {
             for (key in _ref) {
               datum = _ref[key];
               segments = nameFormatter.bracketedSegments(key);
-              this._nestedAssign(memo, segments, datum.value);
+              nameFormatter._nestedAssign.call(this, memo, segments, datum.value);
             }
             return memo;
           };
@@ -538,17 +563,6 @@ angular.module('Collection').provider('Template', function () {
               method: 'POST',
               data: this.form()
             });
-          };
-          Template.prototype._nestedAssign = function (obj, segments, value) {
-            var head, tail;
-            head = segments[0], tail = 2 <= segments.length ? __slice.call(segments, 1) : [];
-            if (tail.length) {
-              obj[head] || (obj[head] = {});
-              return this._nestedAssign(obj[head], tail, value);
-            } else {
-              obj[head] = value;
-              return obj;
-            }
           };
           TemplateDatum = function () {
             var empty;

@@ -71,7 +71,7 @@ angular.module('Collection').provider('Template', ->
         memo = {}
         for key, datum of @_data
           segments = nameFormatter.bracketedSegments key
-          @_nestedAssign memo, segments, datum.value
+          nameFormatter._nestedAssign.call @, memo, segments, datum.value
         memo
 
       valid: ->
@@ -81,15 +81,6 @@ angular.module('Collection').provider('Template', ->
 
       submit: ->
         @client @href, method: 'POST', data: @form()
-
-      _nestedAssign: (obj, segments, value) ->
-        [head, tail...] = segments
-        if tail.length
-          obj[head] ||= {}
-          @_nestedAssign obj[head], tail, value
-        else
-          obj[head] = value
-          obj
 
       class TemplateDatum
         empty = (str) ->

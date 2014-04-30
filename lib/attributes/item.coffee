@@ -1,5 +1,5 @@
 angular.module('Collection').provider('Item', ->
-  $get: (Link, Template, $injector) ->
+  $get: (Link, Template, $injector, nameFormatter) ->
     class Item
       constructor: (@_item, @_template)->
         # delay the dependency
@@ -15,6 +15,13 @@ angular.module('Collection').provider('Item', ->
 
       get: (key)->
         @datum(key)?.value
+
+      fields: (href) ->
+        memo = {}
+        for item in @_item.data
+          segments = nameFormatter.bracketedSegments item.name
+          nameFormatter._nestedAssign.call @, memo, segments, item.value
+        memo
 
       promptFor: (key)->
         @datum(key)?.prompt
