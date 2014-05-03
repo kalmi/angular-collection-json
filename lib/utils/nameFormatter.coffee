@@ -5,22 +5,26 @@ angular.module('Collection').service 'nameFormatter', ->
     [head, tail...] = segments
     if tail.length
       obj[head] ||= {}
-      _nestedAssign.call @, obj[head], tail, value
+      _nestedAssign(obj[head], tail, value)
     else
       obj[head] = value
       obj
 
+  notEmpty = (s) -> s != ''
+
 
   bracketedSegments: (str) ->
-    str.split(/[\]\[]/).filter (s) -> s != ''
+    str.split(/[\]\[]/).filter notEmpty
   dottedSegments: (str) ->
-    str.split('.').filter (s) -> s != ''
+    str.split('.').filter notEmpty
 
   dotted: (str) ->
+    return str unless str
     segments = @bracketedSegments str
     segments.join '.'
 
   bracketed: (str) ->
+    return str unless str
     segments = @dottedSegments str
     for i in [1 ... segments.length]
       segments[i] = "[#{segments[i]}]"

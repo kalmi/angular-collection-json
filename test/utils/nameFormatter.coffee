@@ -27,3 +27,18 @@ describe "nameFormatter service", ->
     bracketed = formatter.bracketed original
     dotted = formatter.dotted bracketed
     expect(dotted).toEqual original
+
+  it 'handles undefined', ->
+    original = undefined
+    dotted = formatter.dotted original
+    bracketed = formatter.bracketed original
+    expect(dotted).toEqual original
+    expect(bracketed).toEqual original
+
+  it 'handles null', ->
+    original = null
+    dotted = formatter.dotted original
+    bracketed = formatter.bracketed original
+    expect(dotted).toEqual original
+    expect(bracketed).toEqual original
+

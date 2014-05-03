@@ -59,36 +59,41 @@ angular.module('Collection').service('defineNested', function() {
 var __slice = [].slice;
 
 angular.module('Collection').service('nameFormatter', function() {
-  var _nestedAssign;
+  var notEmpty, _nestedAssign;
   _nestedAssign = function(obj, segments, value) {
     var head, tail;
     head = segments[0], tail = 2 <= segments.length ? __slice.call(segments, 1) : [];
     if (tail.length) {
       obj[head] || (obj[head] = {});
-      return _nestedAssign.call(this, obj[head], tail, value);
+      return _nestedAssign(obj[head], tail, value);
     } else {
       obj[head] = value;
       return obj;
     }
   };
+  notEmpty = function(s) {
+    return s !== '';
+  };
   return {
     bracketedSegments: function(str) {
-      return str.split(/[\]\[]/).filter(function(s) {
-        return s !== '';
-      });
+      return str.split(/[\]\[]/).filter(notEmpty);
     },
     dottedSegments: function(str) {
-      return str.split('.').filter(function(s) {
-        return s !== '';
-      });
+      return str.split('.').filter(notEmpty);
     },
     dotted: function(str) {
       var segments;
+      if (!str) {
+        return str;
+      }
       segments = this.bracketedSegments(str);
       return segments.join('.');
     },
     bracketed: function(str) {
       var i, segments, _i, _ref;
+      if (!str) {
+        return str;
+      }
       segments = this.dottedSegments(str);
       for (i = _i = 1, _ref = segments.length; 1 <= _ref ? _i < _ref : _i > _ref; i = 1 <= _ref ? ++_i : --_i) {
         segments[i] = "[" + segments[i] + "]";
