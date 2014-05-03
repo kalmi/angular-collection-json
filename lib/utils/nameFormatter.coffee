@@ -14,17 +14,19 @@ angular.module('Collection').service 'nameFormatter', ->
 
 
   bracketedSegments: (str) ->
+    return [] unless angular.isString str
     str.split(/[\]\[]/).filter notEmpty
   dottedSegments: (str) ->
+    return [] unless angular.isString str
     str.split('.').filter notEmpty
 
   dotted: (str) ->
-    return str unless str
+    return str unless angular.isString str
     segments = @bracketedSegments str
     segments.join '.'
 
   bracketed: (str) ->
-    return str unless str
+    return str unless angular.isString str
     segments = @dottedSegments str
     for i in [1 ... segments.length]
       segments[i] = "[#{segments[i]}]"

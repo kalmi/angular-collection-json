@@ -31,14 +31,10 @@ describe "nameFormatter service", ->
   it 'handles undefined', ->
     original = undefined
     dotted = formatter.dotted original
+    dottedSegs = formatter.dottedSegments original
     bracketed = formatter.bracketed original
+    bracketedSegs = formatter.bracketedSegments original
     expect(dotted).toEqual original
     expect(bracketed).toEqual original
-
-  it 'handles null', ->
-    original = null
-    dotted = formatter.dotted original
-    bracketed = formatter.bracketed original
-    expect(dotted).toEqual original
-    expect(bracketed).toEqual original
-
+    expect(dottedSegs).toEqual []
+    expect(bracketedSegs).toEqual []
