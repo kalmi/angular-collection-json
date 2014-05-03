@@ -76,14 +76,20 @@ angular.module('Collection').service('nameFormatter', function() {
   };
   return {
     bracketedSegments: function(str) {
+      if (!angular.isString(str)) {
+        return [];
+      }
       return str.split(/[\]\[]/).filter(notEmpty);
     },
     dottedSegments: function(str) {
+      if (!angular.isString(str)) {
+        return [];
+      }
       return str.split('.').filter(notEmpty);
     },
     dotted: function(str) {
       var segments;
-      if (!str) {
+      if (!angular.isString(str)) {
         return str;
       }
       segments = this.bracketedSegments(str);
@@ -91,7 +97,7 @@ angular.module('Collection').service('nameFormatter', function() {
     },
     bracketed: function(str) {
       var i, segments, _i, _ref;
-      if (!str) {
+      if (!angular.isString(str)) {
         return str;
       }
       segments = this.dottedSegments(str);
