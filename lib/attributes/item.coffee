@@ -4,8 +4,7 @@ angular.module('Collection').provider('Item', ->
       constructor: (@_item, @_template)->
         # delay the dependency
         @client = $injector.get 'cj'
-        @_links = {}
-        @_data = null
+        @_links = null
 
       href: ()-> @_item.href
 
@@ -29,16 +28,14 @@ angular.module('Collection').provider('Item', ->
       load: ->
         @client @href()
 
-      links: ()->
-        @_item.links
+      links: ->
+        return @_links if @_links
+
+        @_links = (new Link l for l in (@_item.links || []))
 
       link: (rel)->
-        link = _.find @_item.links||[], (link)->
-          link.rel is rel
-        return null if not link
-
-        @_links[rel] = new Link(link) if link
-        @_links[rel]
+        for l in @links()
+          return l if l.rel() == rel
 
       edit: ()->
         throw new Error("Item does not support editing") if not @_template

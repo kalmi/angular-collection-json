@@ -153,6 +153,13 @@ describe "Attributes", ->
             expect(itemDatum).toBeDefined "Item does not have #{datum.name}"
             expect(itemDatum).toEqual datum.value
 
+      it "should get links", ->
+        for orig in data.collection.items
+          item = collection.item(orig.href)
+          for origLink in orig.links
+            link = item.link origLink.rel
+            expect(link.href()).toEqual origLink.href
+
     describe "[queries](http://amundsen.com/media-types/collection/format/#arrays-queries)", ->
 
       it "should iterate queries", ->
