@@ -26,8 +26,9 @@ angular.module('Collection').provider('Collection', ->
 
       items: ->
         return @_items if @_items
+        template = @_collection.template
 
-        @_items = (new Item i for i in (@_collection.items || []))
+        @_items = (new Item(i, template) for i in (@_collection.items || []))
 
       item: (href)->
         for i in @items()
@@ -43,8 +44,8 @@ angular.module('Collection').provider('Collection', ->
       # TODO support multiple templates:
       # https://github.com/mamund/collection-json/blob/master/extensions/templates.md
 
-      template: (name) ->
-        new Template @_collection.href, @_collection.template, name
+      template: ->
+        new Template @_collection.href, @_collection.template
 
       meta: (name)->
         @_collection.meta?[name]

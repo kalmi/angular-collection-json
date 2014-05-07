@@ -39,9 +39,10 @@ angular.module('Collection').provider('Item', ->
 
       edit: ()->
         throw new Error("Item does not support editing") if not @_template
-        template = _.clone @_template
-        template.href = @_item.href
-        new Template template, @data()
+        template = new Template @href(), @_template
+        for datum in @_item.data
+          template.set datum.name, datum.value
+        template
 
       remove: ()->
         @client @href(), method: 'DELETE'

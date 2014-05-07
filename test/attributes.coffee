@@ -160,6 +160,13 @@ describe "Attributes", ->
             link = item.link origLink.rel
             expect(link.href()).toEqual origLink.href
 
+      it "creates templates from item data", ->
+        for orig in data.collection.items
+          item = collection.item(orig.href)
+          template = item.edit()
+          expect(template.get 'full-name').toEqual orig.data[0].value
+          expect(template.href()).toEqual item.href()
+
     describe "[queries](http://amundsen.com/media-types/collection/format/#arrays-queries)", ->
 
       it "should iterate queries", ->
