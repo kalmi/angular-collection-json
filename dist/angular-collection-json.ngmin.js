@@ -173,17 +173,18 @@ angular.module('Collection').provider('Collection', function () {
             }
           };
           Collection.prototype.items = function () {
-            var i;
+            var i, template;
             if (this._items) {
               return this._items;
             }
+            template = this._collection.template;
             return this._items = function () {
               var _i, _len, _ref, _results;
               _ref = this._collection.items || [];
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 i = _ref[_i];
-                _results.push(new Item(i));
+                _results.push(new Item(i, template));
               }
               return _results;
             }.call(this);
@@ -218,8 +219,8 @@ angular.module('Collection').provider('Collection', function () {
               }
             }
           };
-          Collection.prototype.template = function (name) {
-            return new Template(this._collection.href, this._collection.template, name);
+          Collection.prototype.template = function () {
+            return new Template(this._collection.href, this._collection.template);
           };
           Collection.prototype.meta = function (name) {
             var _ref;
@@ -309,13 +310,17 @@ angular.module('Collection').provider('Item', function () {
             }
           };
           Item.prototype.edit = function () {
-            var template;
+            var datum, template, _i, _len, _ref;
             if (!this._template) {
               throw new Error('Item does not support editing');
             }
-            template = _.clone(this._template);
-            template.href = this._item.href;
-            return new Template(template, this.data());
+            template = new Template(this.href(), this._template);
+            _ref = this._item.data;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              datum = _ref[_i];
+              template.set(datum.name, datum.value);
+            }
+            return template;
           };
           Item.prototype.remove = function () {
             return this.client(this.href(), { method: 'DELETE' });
