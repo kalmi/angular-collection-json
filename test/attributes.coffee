@@ -184,12 +184,12 @@ describe "Attributes", ->
     describe "[links](http://amundsen.com/media-types/collection/format/#arrays-links)", ->
 
       it "should get iterate the links", ->
-        for link in collection.links
-          orig = _.find data.collection.links, (_link)-> _link.rel is link.rel
-          expect(link.href).toEqual orig.href
-          expect(link.rel).toEqual orig.rel
-          expect(link.prompt).toEqual orig.prompt
-          expect(link.name).toEqual orig.name
+        for link in collection.links()
+          orig = _.find data.collection.links, (_link)-> _link.rel == link.rel()
+          expect(link.href()).toEqual orig.href
+          expect(link.rel()).toEqual orig.rel
+          expect(link.prompt()).toEqual orig.prompt
+          expect(link.name()).toEqual orig.name
 
       it "should get a link by rel", ->
         for orig in data.collection.links
