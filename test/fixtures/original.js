@@ -5,7 +5,7 @@ angular.module('Collection').value('cjOriginal',
     "href": "http://example.org/friends/",
 
     "links": [
-      {"rel": "feed", "href": "http://example.org/friends/rss", "prompt": "Feed"}
+      {"rel": "feed", "href": "http://example.org/friends/rss", "prompt": "Feed", "name": "RSS Feed"}
     ],
 
     "items": [
@@ -16,7 +16,7 @@ angular.module('Collection').value('cjOriginal',
           {"name": "email", "value": "jdoe@example.org", "prompt": "Email"}
         ],
         "links": [
-          {"rel": "blog", "href": "http://examples.org/blogs/jdoe", "prompt": "Blog"},
+          {"rel": "blog", "href": "http://examples.org/blogs/jdoe", "prompt": "Blog", "name": "Blog Data"},
           {"rel": "avatar", "href": "http://examples.org/images/jdoe", "prompt": "Avatar", "render": "image"}
         ]
       },

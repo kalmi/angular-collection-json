@@ -346,6 +346,9 @@ angular.module('Collection').provider('Link', function () {
           Link.prototype.prompt = function () {
             return this._link.prompt;
           };
+          Link.prototype.name = function () {
+            return this._link.name;
+          };
           Link.prototype.follow = function () {
             return this.client(this.href());
           };

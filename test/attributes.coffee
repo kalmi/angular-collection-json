@@ -189,6 +189,7 @@ describe "Attributes", ->
           expect(link.href).toEqual orig.href
           expect(link.rel).toEqual orig.rel
           expect(link.prompt).toEqual orig.prompt
+          expect(link.name).toEqual orig.name
 
       it "should get a link by rel", ->
         for orig in data.collection.links

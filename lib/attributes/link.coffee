@@ -14,5 +14,9 @@ angular.module('Collection').provider 'Link', ->
       prompt: ->
         @_link.prompt
 
+      name: ->
+        @_link.name
+
+
       follow: ->
         @client @href()
