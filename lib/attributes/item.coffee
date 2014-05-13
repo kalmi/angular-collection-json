@@ -38,7 +38,7 @@ angular.module('Collection').provider('Item', ->
           return l if l.rel() == rel
 
       edit: ()->
-        throw new Error("Item does not support editing") if not @_template
+        return unless @_template
         template = new Template @href(), @_template
         for datum in @_item.data
           template.set datum.name, datum.value

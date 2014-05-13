@@ -45,6 +45,7 @@ angular.module('Collection').provider('Collection', ->
       # https://github.com/mamund/collection-json/blob/master/extensions/templates.md
 
       template: ->
+        return unless @_collection.template
         new Template @_collection.href, @_collection.template
 
       meta: (name)->

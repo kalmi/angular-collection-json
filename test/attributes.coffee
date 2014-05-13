@@ -57,6 +57,11 @@ describe "Attributes", ->
 
     describe "[template](http://amundsen.com/media-types/collection/format/#objects-template)", ->
 
+      it "returns undefined when a template was not set", ->
+        delete collection._collection.template
+        expect(collection.template()).toBeUndefined()
+
+
       it "should iterate properties template", ->
         template = collection.template()
         for key, value of template.form()
@@ -166,6 +171,12 @@ describe "Attributes", ->
           template = item.edit()
           expect(template.get 'full-name').toEqual orig.data[0].value
           expect(template.href()).toEqual item.href()
+
+      it "returns undefined if no template", ->
+        delete data.collection.template
+        for orig in data.collection.items
+          item = collection.item(orig.href)
+          expect(item.edit()).toBeUndefined()
 
     describe "[queries](http://amundsen.com/media-types/collection/format/#arrays-queries)", ->
 
