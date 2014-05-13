@@ -1,5 +1,5 @@
-angular.module('Collection').value('cjOriginal',
-  {
+angular.module('Collection').service('cjOriginal',function(){
+  var original = {
     "collection": {
     "version": "1.0",
     "href": "http://example.org/friends/",
@@ -66,4 +66,5 @@ angular.module('Collection').value('cjOriginal',
     }
   }
   }
-)
+  return JSON.parse(JSON.stringify(original));
+})

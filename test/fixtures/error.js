@@ -1,5 +1,5 @@
-angular.module('Collection').value('cjError',
-  { "collection": {
+angular.module('Collection').service('cjError',function(){
+  var original = { "collection": {
     "version": "1.0",
     "href": "http://example.org/friends/",
 
@@ -10,4 +10,6 @@ angular.module('Collection').value('cjError',
     }
   }
   }
-)
+
+  return JSON.parse(JSON.stringify(original));
+})

@@ -1,5 +1,5 @@
-angular.module('Collection').value('cjExtended',
-  {
+angular.module('Collection').service('cjExtended',function(){
+  var original = {
     "collection": {
     "version": "1.0",
     "href": "http://example.org/friends/",
@@ -107,5 +107,6 @@ angular.module('Collection').value('cjExtended',
       "totalResults": 100
     }
   }
-  }
-)
+  };
+  return JSON.parse(JSON.stringify(original));
+})
