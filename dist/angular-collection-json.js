@@ -224,6 +224,9 @@ angular.module('Collection').provider('Collection', function() {
         };
 
         Collection.prototype.template = function() {
+          if (!this._collection.template) {
+            return;
+          }
           return new Template(this._collection.href, this._collection.template);
         };
 
@@ -322,7 +325,7 @@ angular.module('Collection').provider('Item', function() {
         Item.prototype.edit = function() {
           var datum, template, _i, _len, _ref;
           if (!this._template) {
-            throw new Error("Item does not support editing");
+            return;
           }
           template = new Template(this.href(), this._template);
           _ref = this._item.data;
