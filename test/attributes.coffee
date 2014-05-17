@@ -172,6 +172,13 @@ describe "Attributes", ->
           expect(template.get 'full-name').toEqual orig.data[0].value
           expect(template.href()).toEqual item.href()
 
+      it "creates an array of templates from all items", ->
+        templates = collection.templateAll()
+        templates.forEach (template, idx) ->
+          item = data.collection.items[idx]
+          expect(template.get 'full-name').toEqual item.data[0].value
+          expect(template.href()).toEqual item.href
+
       it "returns undefined if no template", ->
         delete data.collection.template
         for orig in data.collection.items
