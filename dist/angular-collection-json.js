@@ -230,6 +230,17 @@ angular.module('Collection').provider('Collection', function() {
           return new Template(this._collection.href, this._collection.template);
         };
 
+        Collection.prototype.templateAll = function() {
+          var item, items, tmpls, _i, _len;
+          tmpls = [];
+          items = this.items();
+          for (_i = 0, _len = items.length; _i < _len; _i++) {
+            item = items[_i];
+            tmpls.push(item.edit());
+          }
+          return tmpls;
+        };
+
         Collection.prototype.meta = function(name) {
           var _ref;
           return (_ref = this._collection.meta) != null ? _ref[name] : void 0;
