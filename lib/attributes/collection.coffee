@@ -48,10 +48,10 @@ angular.module('Collection').provider('Collection', ->
         return unless @_collection.template
         new Template @_collection.href, @_collection.template
 
-      templateAll: ->
+      templateAll: (ns)->
         tmpls = []
         items = @items()
-        tmpls.push item.edit() for item in items
+        tmpls.push item.edit(ns) for item in items
         tmpls
 
       meta: (name)->

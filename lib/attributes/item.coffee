@@ -37,11 +37,11 @@ angular.module('Collection').provider('Item', ->
         for l in @links()
           return l if l.rel() == rel
 
-      edit: ()->
+      edit: (ns)->
         return unless @_template
         template = new Template @href(), @_template
         for datum in @_item.data
-          template.set datum.name, datum.value
+          template.set (if ns then "#{ns}[#{datum.name}]" else datum.name), datum.value
         template
 
       remove: ()->

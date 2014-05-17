@@ -230,13 +230,13 @@ angular.module('Collection').provider('Collection', function() {
           return new Template(this._collection.href, this._collection.template);
         };
 
-        Collection.prototype.templateAll = function() {
+        Collection.prototype.templateAll = function(ns) {
           var item, items, tmpls, _i, _len;
           tmpls = [];
           items = this.items();
           for (_i = 0, _len = items.length; _i < _len; _i++) {
             item = items[_i];
-            tmpls.push(item.edit());
+            tmpls.push(item.edit(ns));
           }
           return tmpls;
         };
@@ -333,7 +333,7 @@ angular.module('Collection').provider('Item', function() {
           }
         };
 
-        Item.prototype.edit = function() {
+        Item.prototype.edit = function(ns) {
           var datum, template, _i, _len, _ref;
           if (!this._template) {
             return;
@@ -342,7 +342,7 @@ angular.module('Collection').provider('Item', function() {
           _ref = this._item.data;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             datum = _ref[_i];
-            template.set(datum.name, datum.value);
+            template.set((ns ? "" + ns + "[" + datum.name + "]" : datum.name), datum.value);
           }
           return template;
         };
