@@ -226,14 +226,14 @@ angular.module('Collection').provider('Collection', function () {
             return new Template(this._collection.href, this._collection.template);
           };
           Collection.prototype.templateAll = function (ns) {
-            var item, items, tmpls, _i, _len;
-            tmpls = [];
-            items = this.items();
-            for (_i = 0, _len = items.length; _i < _len; _i++) {
-              item = items[_i];
-              tmpls.push(item.edit(ns));
+            var item, _i, _len, _ref, _results;
+            _ref = this.items();
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              item = _ref[_i];
+              _results.push(item.edit(ns));
             }
-            return tmpls;
+            return _results;
           };
           Collection.prototype.meta = function (name) {
             var _ref;
@@ -469,6 +469,7 @@ angular.module('Collection').provider('Template', function () {
                 datum = _this._data[d.name] = new TemplateDatum(d);
                 segments = nameFormatter.bracketedSegments(d.name);
                 defineNested(_this, segments, {
+                  enumerable: true,
                   get: function () {
                     return datum.value;
                   },
@@ -497,6 +498,7 @@ angular.module('Collection').provider('Template', function () {
                   }
                 });
                 return defineNested(_this.data, segments, {
+                  enumerable: true,
                   get: function () {
                     return datum;
                   }
@@ -615,6 +617,7 @@ angular.module('Collection').provider('Template', function () {
               this.name = this._datum.name;
               this.value = this._datum.value;
               this.prompt = this._datum.prompt;
+              this.valueType = this._datum.value_type;
               this.options = this._datum.options || [];
               this.errors = this._datum.errors || [];
               this.validationErrors = [];
