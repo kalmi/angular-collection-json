@@ -426,6 +426,13 @@ describe "Attributes", ->
         expect(options[0].prompt).toEqual "White"
         expect(options[1].prompt).toEqual "Red"
 
+    describe "[template value types](https://github.com/mustmodify/collection-json.rb#value-types)", ->
+      template = null
+      beforeEach -> template = collection.template()
+
+      it "exposes value type for a given field", ->
+        expect(template.data.email.valueType).toEqual data.collection.template.data[1].value_type
+
 
     describe "[errors](https://github.com/mamund/collection-json/blob/master/extensions/errors.md)", ->
       xit "need tests"

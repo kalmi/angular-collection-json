@@ -91,6 +91,7 @@ angular.module('Collection').provider('Template', ->
           @name = @_datum.name
           @value = @_datum.value
           @prompt = @_datum.prompt
+          @valueType = @_datum.value_type
           @options = @_datum.options || []
           @errors = @_datum.errors || []
           @validationErrors = []

@@ -67,7 +67,8 @@ angular.module('Collection').service('cjExtended',function(){
           "name": "email",
           "value": "",
           "prompt": "Email",
-          "regexp": "[^@]+@[^@]+"
+          "regexp": "[^@]+@[^@]+",
+          "value_type": "email"
         },
         {
           "name": "blog",
