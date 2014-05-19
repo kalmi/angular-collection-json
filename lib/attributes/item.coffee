@@ -40,6 +40,7 @@ angular.module('Collection').provider('Item', ->
       edit: (ns)->
         return unless @_template
         template = new Template @href(), @_template
+        #TODO: This is a hack and should die
         for datum in @_item.data
           template.set (if ns then "#{ns}[#{datum.name}]" else datum.name), datum.value
         template
