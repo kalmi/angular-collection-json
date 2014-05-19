@@ -17,6 +17,7 @@ angular.module('Collection').provider('Template', ->
           datum = @_data[d.name] = new TemplateDatum d
           segments = nameFormatter.bracketedSegments d.name
           defineNested @, segments,
+            enumerable: true
             get: -> datum.value
             set: (v)-> datum.value = v
 
@@ -28,7 +29,7 @@ angular.module('Collection').provider('Template', ->
 
           defineNested @selectedOptions, segments, get: -> datum.selectedOptions()
 
-          defineNested @data, segments, get: -> datum
+          defineNested @data, segments, enumerable: true, get: -> datum
 
         for d in (@_template.data || [])
           segments = nameFormatter.bracketedSegments d.name

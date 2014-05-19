@@ -143,6 +143,10 @@ describe "Attributes", ->
         expect(form.email).toEqual email
         expect(form.address.city).toEqual city
 
+      it "has enumerable properties", ->
+        newItem = collection.template()
+        expect(_.keys(newItem.address)).toEqual ['city']
+
     describe "[items](http://amundsen.com/media-types/collection/format/#arrays-items)", ->
 
       it "should iterate items", ->
