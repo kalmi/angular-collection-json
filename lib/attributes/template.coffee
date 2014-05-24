@@ -27,7 +27,10 @@ angular.module('Collection').provider('Template', ->
 
           defineNested @errors, segments, get: -> datum.errors
 
-          defineNested @selectedOptions, segments, get: -> datum.selectedOptions()
+          defineNested @selectedOptions, segments,
+            get: -> datum.selectedOptions()
+            set: (option) -> datum.value = option?.value
+
 
           defineNested @data, segments, enumerable: true, get: -> datum
 

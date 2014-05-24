@@ -420,6 +420,12 @@ describe "Attributes", ->
         option = template.selectedOptions.color
         expect(option.prompt).toEqual "White"
 
+      it "allows setting of (single) selectedOption", ->
+        template.set 'color', 'white'
+        template.selectedOptions.color = template.options.color[1]
+        option = template.selectedOptions.color
+        expect(option.prompt).toEqual "Red"
+
       it "provides selected options when multiple", ->
         template.set 'color', ['white', 'red']
         options = template.selectedOptions.color

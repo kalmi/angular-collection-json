@@ -495,6 +495,9 @@ angular.module('Collection').provider('Template', function () {
                 defineNested(_this.selectedOptions, segments, {
                   get: function () {
                     return datum.selectedOptions();
+                  },
+                  set: function (option) {
+                    return datum.value = option != null ? option.value : void 0;
                   }
                 });
                 return defineNested(_this.data, segments, {
