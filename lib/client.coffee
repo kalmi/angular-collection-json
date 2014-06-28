@@ -1,34 +1,38 @@
+angular.module('Collection', []).provider 'cj', ->
+  urlTransform = angular.identity
 
-angular.module('Collection', []).factory 'cj', (Collection, $http, $q)->
-  ret = (href, options)->
-    config = angular.extend {url: href}, options
-    $http(config).then(
-      (res) -> ret.parse res.data
-      (res) ->
-        ret.parse(res.data).then (collection) ->
-          e = new Error 'request failed'
-          e.response = res
-          e.collection = collection
-          $q.reject e
-    )
+  setUrlTransform: (transform) -> urlTransform = transform
 
-  ret.parse = (source)->
-    if angular.isString source
-      try
-        source = JSON.parse source
-      catch e
-        return $q.reject e
+  $get: (Collection, $http, $q) ->
+    client = (href, options) ->
+      config = angular.extend {url: urlTransform(href)}, options
+      $http(config).then(
+        (res) -> client.parse res.data
+        (res) ->
+          client.parse(res.data).then (collection) ->
+            e = new Error 'request failed'
+            e.response = res
+            e.collection = collection
+            $q.reject e
+      )
 
-    if source.collection?.version isnt "1.0"
-      return $q.reject new Error "Collection does not conform to Collection+JSON 1.0 Spec"
+    client.parse = (source) ->
+      if angular.isString source
+        try
+          source = JSON.parse source
+        catch e
+          return $q.reject e
 
-    collectionObj = new Collection source.collection
+      if source.collection?.version isnt "1.0"
+        return $q.reject new Error "Collection does not conform to Collection+JSON 1.0 Spec"
 
-    if collectionObj.error
-      e = new Error('Parsed collection contains errors')
-      e.collection = collectionObj
-      $q.reject e
-    else
-      $q.when collectionObj
+      collectionObj = new Collection source.collection
 
-  return ret
+      if collectionObj.error
+        e = new Error('Parsed collection contains errors')
+        e.collection = collectionObj
+        $q.reject e
+      else
+        $q.when collectionObj
+
+    client
