@@ -1,49 +1,62 @@
-angular.module('Collection', []).factory('cj', [
-  'Collection',
-  '$http',
-  '$q',
-  function (Collection, $http, $q) {
-    var ret;
-    ret = function (href, options) {
-      var config;
-      config = angular.extend({ url: href }, options);
-      return $http(config).then(function (res) {
-        return ret.parse(res.data);
-      }, function (res) {
-        return ret.parse(res.data).then(function (collection) {
-          var e;
-          e = new Error('request failed');
-          e.response = res;
-          e.collection = collection;
-          return $q.reject(e);
-        });
-      });
-    };
-    ret.parse = function (source) {
-      var collectionObj, e, _ref;
-      if (angular.isString(source)) {
-        try {
-          source = JSON.parse(source);
-        } catch (_error) {
-          e = _error;
-          return $q.reject(e);
-        }
+angular.module('Collection', []).provider('cj', function () {
+  var strictVersion, urlTransform;
+  urlTransform = angular.identity;
+  strictVersion = true;
+  return {
+    setUrlTransform: function (transform) {
+      return urlTransform = transform;
+    },
+    setStrictVersion: function (strict) {
+      return strictVersion = strict;
+    },
+    $get: [
+      'Collection',
+      '$http',
+      '$q',
+      function (Collection, $http, $q) {
+        var client;
+        client = function (href, options) {
+          var config;
+          config = angular.extend({ url: urlTransform(href) }, options);
+          return $http(config).then(function (res) {
+            return client.parse(res.data);
+          }, function (res) {
+            return client.parse(res.data).then(function (collection) {
+              var e;
+              e = new Error('request failed');
+              e.response = res;
+              e.collection = collection;
+              return $q.reject(e);
+            });
+          });
+        };
+        client.parse = function (source) {
+          var collectionObj, e, _ref;
+          if (angular.isString(source)) {
+            try {
+              source = JSON.parse(source);
+            } catch (_error) {
+              e = _error;
+              return $q.reject(e);
+            }
+          }
+          if (strictVersion && ((_ref = source.collection) != null ? _ref.version : void 0) !== '1.0') {
+            return $q.reject(new Error('Collection does not conform to Collection+JSON 1.0 Spec'));
+          }
+          collectionObj = new Collection(source.collection);
+          if (collectionObj.error) {
+            e = new Error('Parsed collection contains errors');
+            e.collection = collectionObj;
+            return $q.reject(e);
+          } else {
+            return $q.when(collectionObj);
+          }
+        };
+        return client;
       }
-      if (((_ref = source.collection) != null ? _ref.version : void 0) !== '1.0') {
-        return $q.reject(new Error('Collection does not conform to Collection+JSON 1.0 Spec'));
-      }
-      collectionObj = new Collection(source.collection);
-      if (collectionObj.error) {
-        e = new Error('Parsed collection contains errors');
-        e.collection = collectionObj;
-        return $q.reject(e);
-      } else {
-        return $q.when(collectionObj);
-      }
-    };
-    return ret;
-  }
-]);
+    ]
+  };
+});
 var __slice = [].slice;
 angular.module('Collection').service('defineNested', function () {
   var defineNested;

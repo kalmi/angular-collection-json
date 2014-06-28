@@ -1,10 +1,8 @@
-Collection+JSON Client for AngularJS
-=====================================
+# Collection+JSON Client for AngularJS
 
 Documentation will be finished once the API is solidified.
 
-Features
---------
+## Features
 
 * Simple API
 * Browser compatible(IE 8+)
@@ -12,8 +10,7 @@ Features
 * Query/Template building
 
 
-Example
--------
+## Example
 
 ```js
 var cj = $injector.get('cj');
@@ -45,3 +42,24 @@ cj("http://example.com").then(function(collection){
   });
 });
 ```
+
+## Configuration
+
+```js
+angular.module('myApp', ['cj']).configure(function(cjProvider){
+
+  // Alter urls before they get requested
+  // cj('http://example.com/foo') requests http://example.com/foo/improved
+  cjProvider.setUrlTransform(function(original){
+    return original + '/improved';
+  });
+
+  // Disable strict version checking (collections without version "1.0")
+  cjProvider.setStrictVersion(false);
+
+});
+```
+
+
+
+
