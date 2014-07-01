@@ -1,7 +1,7 @@
 angular.module('Collection').provider('Template', ->
   $get: ($injector, nameFormatter, defineNested, sealNested) ->
     class Template
-      constructor: (@_href, @_template)->
+      constructor: (@_href, @_template, @_new = true)->
         # delay the dependency
         @client = $injector.get 'cj'
 
@@ -84,7 +84,11 @@ angular.module('Collection').provider('Template', ->
         true
 
       submit: ->
-        @client @href, method: 'POST', data: @form()
+        @client @href(), method: (if @_new then 'PUT' else 'POST'), data: @form()
+
+      refresh: ->
+        console.log params: @formNested()
+        @client @href(), method: 'GET', params: @formNested()
 
       class TemplateDatum
         empty = (str) ->

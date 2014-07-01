@@ -281,7 +281,7 @@ describe "Attributes", ->
       cj(cjUrl).then (collection) -> result = collection
       $httpBackend.flush()
       template = result.template()
-      $httpBackend.whenPOST(template.href, template.form()).respond data
+      $httpBackend.whenPOST(template.href(), template.form()).respond data
       template.submit().then (collection) ->
         expect(collection.version()).toEqual data.collection.version
       $httpBackend.flush()
@@ -306,6 +306,30 @@ describe "Attributes", ->
         $httpBackend.whenDELETE(item.href()).respond data
         item.remove().then (collection) ->
           expect(collection.version()).toEqual data.collection.version
+      $httpBackend.flush()
+
+    it "should PUT when editing an item", ->
+      result = null
+      cj(cjUrl).then (collection) -> result = collection
+      $httpBackend.flush()
+      for orig in data.collection.items
+        item = result.item orig.href
+        template = item.edit()
+        $httpBackend.whenPUT(template.href(), template.form()).respond template.form()
+        template.submit().then (response) ->
+          expect(response).toEqual template.form()
+      $httpBackend.flush()
+
+    iit "should GET with template when running refresh() method", ->
+      result = null
+      cj(cjUrl).then (collection) -> result = collection
+      $httpBackend.flush()
+      for orig in data.collection.items
+        item = result.item orig.href
+        template = item.edit()
+        $httpBackend.whenGET(template.href()).respond data
+        template.refresh().then (response) ->
+          expect(response).toEqual template.form()
       $httpBackend.flush()
 
   describe "[Extensions](https://github.com/mustmodify/collection-json.rb#forked-changes)", ->
