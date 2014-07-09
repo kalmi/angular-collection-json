@@ -8,7 +8,6 @@ angular.module('Collection', []).provider 'cj', ->
   $get: (Collection, $http, $q) ->
     client = (href, options) ->
       config = angular.extend {url: urlTransform(href)}, options
-      console.log config.url, config.params
       $http(config).then(
         (res) -> client.parse res.data
         (res) ->

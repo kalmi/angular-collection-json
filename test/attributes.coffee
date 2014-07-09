@@ -320,16 +320,17 @@ describe "Attributes", ->
           expect(response).toEqual template.form()
       $httpBackend.flush()
 
-    iit "should GET with template when running refresh() method", ->
+    it "should GET with template when running refresh() method", ->
       result = null
       cj(cjUrl).then (collection) -> result = collection
       $httpBackend.flush()
       for orig in data.collection.items
         item = result.item orig.href
         template = item.edit()
-        $httpBackend.whenGET(template.href()).respond data
+        $httpBackend.whenGET(new RegExp(template.href())).respond data
         template.refresh().then (response) ->
-          expect(response).toEqual template.form()
+          expect(response.version()).toEqual data.collection.version
+
       $httpBackend.flush()
 
   describe "[Extensions](https://github.com/mustmodify/collection-json.rb#forked-changes)", ->
