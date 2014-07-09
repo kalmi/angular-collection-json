@@ -464,6 +464,21 @@ describe "Attributes", ->
       it "exposes value type for a given field", ->
         expect(template.data.email.valueType).toEqual data.collection.template.data[1].value_type
 
+    describe "[template parameters](https://github.com/mustmodify/collection-json.rb#parameter)", ->
+      template = null
+      beforeEach -> template = collection.template()
+
+      it "serializes using 'parameter' on template", ->
+        template.dish = 'icecream'
+        form = template.formNested()
+        expect(form.food.favorite).toEqual 'icecream'
+
+      it "falls back to 'name' when no parameter specified", ->
+        template.color = 'red'
+        form = template.formNested()
+        expect(form.color).toEqual 'red'
+
+
 
     describe "[errors](https://github.com/mamund/collection-json/blob/master/extensions/errors.md)", ->
       xit "need tests"

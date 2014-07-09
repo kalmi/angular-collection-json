@@ -100,6 +100,10 @@ angular.module('Collection').service('cjExtended',function(){
               ]
             }
           ]
+        },
+        {
+          "name": "dish",
+          "parameter": "food[favorite]",
         }
       ]
     },

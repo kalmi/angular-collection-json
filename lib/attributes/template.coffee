@@ -69,12 +69,12 @@ angular.module('Collection').provider('Template', ->
 
       form: ->
         memo = {}
-        memo[datum.name] = datum.value for key, datum of @_data
+        memo[datum.name] = datum.value for key, datum of @parameterized()
         memo
 
       formNested: ->
         memo = {}
-        for key, datum of @_data
+        for key, datum of @parameterized()
           segments = nameFormatter.bracketedSegments key
           nameFormatter._nestedAssign.call @, memo, segments, datum.value
         memo
@@ -90,12 +90,19 @@ angular.module('Collection').provider('Template', ->
       refresh: ->
         @client @href(), method: 'GET', params: @formNested()
 
+      parameterized: ->
+        result = {}
+        result[datum.parameter || datum.name] = datum for k, datum of @_data
+        result
+
+
       class TemplateDatum
         empty = (str) ->
           !str || str == ""
 
         constructor: (@_datum) ->
           @name = @_datum.name
+          @parameter = @_datum.parameter
           @value = @_datum.value
           @prompt = @_datum.prompt
           @valueType = @_datum.value_type
