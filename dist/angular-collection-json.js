@@ -351,7 +351,9 @@ angular.module('Collection').provider('Item', function() {
           if (!this._template) {
             return;
           }
-          template = new Template(this.href(), this._template);
+          template = new Template(this.href(), this._template, {
+            method: 'PUT'
+          });
           _ref = this._item.data;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             datum = _ref[_i];
@@ -487,12 +489,16 @@ angular.module('Collection').provider('Template', function() {
       return Template = (function() {
         var TemplateDatum;
 
-        function Template(_href, _template) {
+        function Template(_href, _template, opts) {
           var d, segments, _fn, _i, _j, _len, _len1, _ref, _ref1;
           this._href = _href;
           this._template = _template;
+          if (opts == null) {
+            opts = {};
+          }
           this.client = $injector.get('cj');
           this._data = {};
+          this._submitMethod = opts.method || 'POST';
           this.options = {};
           this.prompts = {};
           this.errors = {};
@@ -620,7 +626,7 @@ angular.module('Collection').provider('Template', function() {
         Template.prototype.form = function() {
           var datum, key, memo, _ref;
           memo = {};
-          _ref = this._data;
+          _ref = this.parameterized();
           for (key in _ref) {
             datum = _ref[key];
             memo[datum.name] = datum.value;
@@ -631,7 +637,7 @@ angular.module('Collection').provider('Template', function() {
         Template.prototype.formNested = function() {
           var datum, key, memo, segments, _ref;
           memo = {};
-          _ref = this._data;
+          _ref = this.parameterized();
           for (key in _ref) {
             datum = _ref[key];
             segments = nameFormatter.bracketedSegments(key);
@@ -653,10 +659,28 @@ angular.module('Collection').provider('Template', function() {
         };
 
         Template.prototype.submit = function() {
-          return this.client(this.href, {
-            method: 'POST',
+          return this.client(this.href(), {
+            method: this._submitMethod,
             data: this.form()
           });
+        };
+
+        Template.prototype.refresh = function() {
+          return this.client(this.href(), {
+            method: 'GET',
+            params: this.formNested()
+          });
+        };
+
+        Template.prototype.parameterized = function() {
+          var datum, k, result, _ref;
+          result = {};
+          _ref = this._data;
+          for (k in _ref) {
+            datum = _ref[k];
+            result[datum.parameter || datum.name] = datum;
+          }
+          return result;
         };
 
         TemplateDatum = (function() {
@@ -669,6 +693,7 @@ angular.module('Collection').provider('Template', function() {
           function TemplateDatum(_datum) {
             this._datum = _datum;
             this.name = this._datum.name;
+            this.parameter = this._datum.parameter;
             this.value = this._datum.value;
             this.prompt = this._datum.prompt;
             this.valueType = this._datum.value_type;
