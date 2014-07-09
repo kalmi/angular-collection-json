@@ -69,7 +69,7 @@ angular.module('Collection').provider('Template', ->
 
       form: ->
         memo = {}
-        memo[datum.name] = datum.value for key, datum of @parameterized()
+        memo[key] = datum.value for key, datum of @parameterized()
         memo
 
       formNested: ->
@@ -85,10 +85,10 @@ angular.module('Collection').provider('Template', ->
         true
 
       submit: ->
-        @client @href(), method: @_submitMethod, data: @form()
+        @client @href(), method: @_submitMethod, data: @formNested()
 
       refresh: ->
-        @client @href(), method: 'GET', params: @formNested()
+        @client @href(), method: 'GET', params: @form()
 
       parameterized: ->
         result = {}

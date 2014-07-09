@@ -281,7 +281,7 @@ describe "Attributes", ->
       cj(cjUrl).then (collection) -> result = collection
       $httpBackend.flush()
       template = result.template()
-      $httpBackend.whenPOST(template.href(), template.form()).respond data
+      $httpBackend.whenPOST(template.href(), template.formNested()).respond data
       template.submit().then (collection) ->
         expect(collection.version()).toEqual data.collection.version
       $httpBackend.flush()
@@ -315,7 +315,7 @@ describe "Attributes", ->
       for orig in data.collection.items
         item = result.item orig.href
         template = item.edit()
-        $httpBackend.whenPUT(template.href(), template.form()).respond template.form()
+        $httpBackend.whenPUT(template.href(), template.formNested()).respond template.form()
         template.submit().then (response) ->
           expect(response).toEqual template.form()
       $httpBackend.flush()
@@ -470,14 +470,17 @@ describe "Attributes", ->
 
       it "serializes using 'parameter' on template", ->
         template.dish = 'icecream'
-        form = template.formNested()
-        expect(form.food.favorite).toEqual 'icecream'
+        nested = template.formNested()
+        expect(nested.food.favorite).toEqual 'icecream'
+        form = template.form()
+        expect(form['food[favorite]']).toEqual 'icecream'
 
       it "falls back to 'name' when no parameter specified", ->
         template.color = 'red'
-        form = template.formNested()
-        expect(form.color).toEqual 'red'
-
+        nested = template.formNested()
+        expect(nested.color).toEqual 'red'
+        form = template.form()
+        expect(form['color']).toEqual 'red'
 
 
     describe "[errors](https://github.com/mamund/collection-json/blob/master/extensions/errors.md)", ->
