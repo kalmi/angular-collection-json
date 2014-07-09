@@ -629,7 +629,7 @@ angular.module('Collection').provider('Template', function() {
           _ref = this.parameterized();
           for (key in _ref) {
             datum = _ref[key];
-            memo[datum.name] = datum.value;
+            memo[key] = datum.value;
           }
           return memo;
         };
@@ -661,14 +661,14 @@ angular.module('Collection').provider('Template', function() {
         Template.prototype.submit = function() {
           return this.client(this.href(), {
             method: this._submitMethod,
-            data: this.form()
+            data: this.formNested()
           });
         };
 
         Template.prototype.refresh = function() {
           return this.client(this.href(), {
             method: 'GET',
-            params: this.formNested()
+            params: this.form()
           });
         };
 
