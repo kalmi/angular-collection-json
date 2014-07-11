@@ -109,6 +109,9 @@ angular.module('Collection').provider('Template', ->
           @options = @_datum.options || []
           @errors = @_datum.errors || []
           @validationErrors = []
+          @template = null
+          if @_datum.template
+            @template = new Template(null, @_datum.template)
 
         valid: ->
           @validationErrors =
