@@ -489,14 +489,13 @@ describe "Attributes", ->
         form = template.form(true)
         expect(form['color']).toEqual 'red'
 
+  describe "[Recursive Templates](https://github.com/mustmodify/collection-json.rb#forked-changes)", ->
+    collection = data = errorData = null
+    beforeEach inject (cjRecursiveTemplate)->
+      data = cjRecursiveTemplate
+      cj.parse(data).then((c) -> collection = c)
+      scope.$digest()
 
-    describe "[errors](https://github.com/mamund/collection-json/blob/master/extensions/errors.md)", ->
-      xit "need tests"
-    describe "[inline](https://github.com/mamund/collection-json/blob/master/extensions/inline.md)", ->
-      xit "need tests"
-    describe "[model](https://github.com/mamund/collection-json/blob/master/extensions/model.md)", ->
-      xit "need tests"
-    describe "[uri-templates](https://github.com/mamund/collection-json/blob/master/extensions/uri-templates.md)", ->
-      xit "need tests"
-    describe "[value-types](https://github.com/mamund/collection-json/blob/master/extensions/value-types.md)", ->
-      xit "need tests"
+    it "reads templates recursively", ->
+      template = collection.template()
+      expect(template.data.sports.template.rugby).toEqual 'All Blacks'
