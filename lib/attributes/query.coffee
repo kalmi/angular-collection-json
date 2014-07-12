@@ -1,24 +1,21 @@
 angular.module('Collection').provider('Query', ->
-  $get: ($injector) ->
+  $get: ($injector, Template) ->
     class Query
-      constructor: (@_query, @form={})->
+      constructor: (@_query)->
         # delay the dependency
         @client = $injector.get 'cj'
         _query = @_query
-        _form = @form
-
-        for datum in _query.data
-          _form[datum.name] = datum.value if not _form[datum.name]?
+        @template = new Template @_query.href, @_query
 
       datum: (key)->
         for d in (@_query.data || [])
           return angular.extend {}, d if d.name == key
 
       get: (key)->
-        @form[key]
+        @template.get key
 
       set: (key, value)->
-        @form[key] = value
+        @template.set key, value
 
       promptFor: (key)->
         @datum(key)?.prompt
@@ -27,6 +24,10 @@ angular.module('Collection').provider('Query', ->
       rel: ()-> @_query.rel
       prompt: ()-> @_query.prompt
 
-      submit: (done=()->)->
-        @client @href(), params: @form
+      submit: ->
+        @client @href(), method: 'POST', data: @template.formNested(true)
+
+      refresh: ->
+        @client @href(), method: 'GET', params: @template.form(true)
+
 )

@@ -412,23 +412,14 @@ angular.module('Collection').provider('Link', function() {
 });
 angular.module('Collection').provider('Query', function() {
   return {
-    $get: function($injector) {
+    $get: function($injector, Template) {
       var Query;
       return Query = (function() {
-        function Query(_query, form) {
-          var datum, _form, _i, _len, _ref;
+        function Query(_query) {
           this._query = _query;
-          this.form = form != null ? form : {};
           this.client = $injector.get('cj');
           _query = this._query;
-          _form = this.form;
-          _ref = _query.data;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            datum = _ref[_i];
-            if (_form[datum.name] == null) {
-              _form[datum.name] = datum.value;
-            }
-          }
+          this.template = new Template(this._query.href, this._query);
         }
 
         Query.prototype.datum = function(key) {
@@ -443,11 +434,11 @@ angular.module('Collection').provider('Query', function() {
         };
 
         Query.prototype.get = function(key) {
-          return this.form[key];
+          return this.template.get(key);
         };
 
         Query.prototype.set = function(key, value) {
-          return this.form[key] = value;
+          return this.template.set(key, value);
         };
 
         Query.prototype.promptFor = function(key) {
@@ -467,12 +458,17 @@ angular.module('Collection').provider('Query', function() {
           return this._query.prompt;
         };
 
-        Query.prototype.submit = function(done) {
-          if (done == null) {
-            done = function() {};
-          }
+        Query.prototype.submit = function() {
           return this.client(this.href(), {
-            params: this.form
+            method: 'POST',
+            data: this.template.formNested(true)
+          });
+        };
+
+        Query.prototype.refresh = function() {
+          return this.client(this.href(), {
+            method: 'GET',
+            params: this.template.form(true)
           });
         };
 

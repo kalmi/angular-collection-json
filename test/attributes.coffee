@@ -272,7 +272,7 @@ describe "Attributes", ->
       for orig in data.collection.queries
         query = result.query orig.rel
         $httpBackend.whenGET(new RegExp(query.href())).respond data
-        query.submit().then (collection) ->
+        query.refresh().then (collection) ->
           expect(collection.version()).toEqual data.collection.version
       $httpBackend.flush()
 
