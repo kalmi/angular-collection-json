@@ -139,7 +139,7 @@ describe "Attributes", ->
         template = collection.template()
         template.email = email
         template.address.city = city
-        form = template.formNested(true)
+        form = template.formNested()
         expect(form.email).toEqual email
         expect(form.address.city).toEqual city
 
@@ -281,7 +281,7 @@ describe "Attributes", ->
       cj(cjUrl).then (collection) -> result = collection
       $httpBackend.flush()
       template = result.template()
-      $httpBackend.whenPOST(template.href(), template.formNested(true)).respond data
+      $httpBackend.whenPOST(template.href(), template.parametersNested()).respond data
       template.submit().then (collection) ->
         expect(collection.version()).toEqual data.collection.version
       $httpBackend.flush()
@@ -315,7 +315,7 @@ describe "Attributes", ->
       for orig in data.collection.items
         item = result.item orig.href
         template = item.edit()
-        $httpBackend.whenPUT(template.href(), template.formNested()).respond template.form(true)
+        $httpBackend.whenPUT(template.href(), template.parametersNested()).respond template.form(true)
         template.submit().then (response) ->
           expect(response).toEqual template.form(true)
       $httpBackend.flush()
@@ -470,21 +470,14 @@ describe "Attributes", ->
 
       it "serializes using 'parameter' on template", ->
         template.dish = 'icecream'
-        nested = template.formNested(true)
+        nested = template.parametersNested()
         expect(nested.food.favorite).toEqual 'icecream'
-        form = template.form(true)
+        form = template.parameters()
         expect(form['food[favorite]']).toEqual 'icecream'
-
-      it "serializes using 'name' on template when not specifying to use parameter", ->
-        template.dish = 'icecream'
-        nested = template.formNested()
-        expect(nested.dish).toEqual 'icecream'
-        form = template.form()
-        expect(form.dish).toEqual 'icecream'
 
       it "falls back to 'name' when no parameter specified", ->
         template.color = 'red'
-        nested = template.formNested(true)
+        nested = template.parametersNested()
         expect(nested.color).toEqual 'red'
         form = template.form(true)
         expect(form['color']).toEqual 'red'
@@ -502,10 +495,10 @@ describe "Attributes", ->
 
     it "serializes using just name", ->
       template = collection.template()
-      nested = template.formNested()
+      nested = template.parameters()
       expect(nested.rugby).toEqual 'All Blacks'
 
     it "serializes using parameter", ->
       template = collection.template()
-      nested = template.formNested()
+      nested = template.parametersNested()
       expect(nested.quiz.sports.nfl).toEqual 'Saints'

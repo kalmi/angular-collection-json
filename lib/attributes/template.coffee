@@ -67,14 +67,14 @@ angular.module('Collection').provider('Template', ->
       href: ->
         @_href
 
-      form: (parameterized = false) ->
+      form: ->
         memo = {}
-        memo[key] = datum.value for key, datum of (if parameterized then @parameterized() else @_data)
+        memo[key] = datum.value for key, datum of @_data
         memo
 
-      formNested: (parameterized = false) ->
+      formNested: ->
         memo = {}
-        for key, datum of (if parameterized then @parameterized() else @_data)
+        for key, datum of @_data
           segments = nameFormatter.bracketedSegments key
           nameFormatter._nestedAssign.call @, memo, segments, datum.value
         memo
@@ -85,19 +85,27 @@ angular.module('Collection').provider('Template', ->
         true
 
       submit: ->
-        @client @href(), method: @_submitMethod, data: @formNested(true)
+        @client @href(), method: @_submitMethod, data: @parametersNested()
 
       refresh: ->
-        @client @href(), method: 'GET', params: @form(true)
+        @client @href(), method: 'GET', params: @parameters
 
-      parameterized: ->
+      parameters: ->
         result = {}
         for k, datum of @_data
           if datum.template
-            angular.extend result, datum.template.parameterized()
+            angular.extend result, datum.template.parameters()
           else
-            result[datum.parameter || datum.name] = datum
+            result[datum.parameter || datum.name] = datum.value
         result
+
+      parametersNested: ->
+        memo = {}
+        for key, value of @parameters()
+          segments = nameFormatter.bracketedSegments key
+          nameFormatter._nestedAssign memo, segments, value
+        memo
+
 
 
       class TemplateDatum

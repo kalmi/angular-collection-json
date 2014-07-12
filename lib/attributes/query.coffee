@@ -25,9 +25,9 @@ angular.module('Collection').provider('Query', ->
       prompt: ()-> @_query.prompt
 
       submit: ->
-        @client @href(), method: 'POST', data: @template.formNested(true)
+        @client @href(), method: 'POST', data: @template.parametersNested()
 
       refresh: ->
-        @client @href(), method: 'GET', params: @template.form(true)
+        @client @href(), method: 'GET', params: @template.parameters()
 
 )
