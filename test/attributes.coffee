@@ -276,6 +276,17 @@ describe "Attributes", ->
           expect(collection.version()).toEqual data.collection.version
       $httpBackend.flush()
 
+    it "should respond to query submits with new collections", ->
+      result = null
+      cj(cjUrl).then (collection) -> result = collection
+      $httpBackend.flush()
+      for orig in data.collection.queries
+        query = result.query orig.rel
+        $httpBackend.whenPOST(new RegExp(query.href())).respond data
+        query.submit().then (collection) ->
+          expect(collection.version()).toEqual data.collection.version
+      $httpBackend.flush()
+
     it "should respond to template submissions with new collections", ->
       result = null
       cj(cjUrl).then (collection) -> result = collection

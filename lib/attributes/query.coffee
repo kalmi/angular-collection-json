@@ -4,7 +4,6 @@ angular.module('Collection').provider('Query', ->
       constructor: (@_query)->
         # delay the dependency
         @client = $injector.get 'cj'
-        _query = @_query
         @template = new Template @_query.href, @_query
 
       datum: (key)->
@@ -20,14 +19,13 @@ angular.module('Collection').provider('Query', ->
       promptFor: (key)->
         @datum(key)?.prompt
 
-      href: ()-> @_query.href
-      rel: ()-> @_query.rel
-      prompt: ()-> @_query.prompt
+      href: -> @_query.href
 
-      submit: ->
-        @client @href(), method: 'POST', data: @template.parametersNested()
+      rel: -> @_query.rel
 
-      refresh: ->
-        @client @href(), method: 'GET', params: @template.parameters()
+      prompt: -> @_query.prompt
 
+      submit: -> @template.submit()
+
+      refresh: -> @template.refresh()
 )
