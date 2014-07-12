@@ -589,20 +589,26 @@ angular.module('Collection').provider('Template', function () {
           Template.prototype.href = function () {
             return this._href;
           };
-          Template.prototype.form = function () {
+          Template.prototype.form = function (parameterized) {
             var datum, key, memo, _ref;
+            if (parameterized == null) {
+              parameterized = false;
+            }
             memo = {};
-            _ref = this.parameterized();
+            _ref = parameterized ? this.parameterized() : this._data;
             for (key in _ref) {
               datum = _ref[key];
               memo[key] = datum.value;
             }
             return memo;
           };
-          Template.prototype.formNested = function () {
+          Template.prototype.formNested = function (parameterized) {
             var datum, key, memo, segments, _ref;
+            if (parameterized == null) {
+              parameterized = false;
+            }
             memo = {};
-            _ref = this.parameterized();
+            _ref = parameterized ? this.parameterized() : this._data;
             for (key in _ref) {
               datum = _ref[key];
               segments = nameFormatter.bracketedSegments(key);
@@ -624,13 +630,13 @@ angular.module('Collection').provider('Template', function () {
           Template.prototype.submit = function () {
             return this.client(this.href(), {
               method: this._submitMethod,
-              data: this.formNested()
+              data: this.formNested(true)
             });
           };
           Template.prototype.refresh = function () {
             return this.client(this.href(), {
               method: 'GET',
-              params: this.form()
+              params: this.form(true)
             });
           };
           Template.prototype.parameterized = function () {
