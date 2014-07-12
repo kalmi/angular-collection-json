@@ -73,6 +73,6 @@ test_sauce:
 
 release: all
 	@git commit -am 'rebuild for release'
-	@bower version minor
+	@bower version patch
 
 .PHONY: all test test_sauce clean clean_deps dist_test dist/angular-collection-json.js
