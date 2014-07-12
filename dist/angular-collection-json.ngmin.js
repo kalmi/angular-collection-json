@@ -400,7 +400,6 @@ angular.module('Collection').provider('Query', function () {
           function Query(_query) {
             this._query = _query;
             this.client = $injector.get('cj');
-            _query = this._query;
             this.template = new Template(this._query.href, this._query);
           }
           Query.prototype.datum = function (key) {
@@ -433,16 +432,10 @@ angular.module('Collection').provider('Query', function () {
             return this._query.prompt;
           };
           Query.prototype.submit = function () {
-            return this.client(this.href(), {
-              method: 'POST',
-              data: this.template.formNested(true)
-            });
+            return this.template.submit();
           };
           Query.prototype.refresh = function () {
-            return this.client(this.href(), {
-              method: 'GET',
-              params: this.template.form(true)
-            });
+            return this.template.refresh();
           };
           return Query;
         }();
@@ -586,26 +579,20 @@ angular.module('Collection').provider('Template', function () {
           Template.prototype.href = function () {
             return this._href;
           };
-          Template.prototype.form = function (parameterized) {
+          Template.prototype.form = function () {
             var datum, key, memo, _ref;
-            if (parameterized == null) {
-              parameterized = false;
-            }
             memo = {};
-            _ref = parameterized ? this.parameterized() : this._data;
+            _ref = this._data;
             for (key in _ref) {
               datum = _ref[key];
               memo[key] = datum.value;
             }
             return memo;
           };
-          Template.prototype.formNested = function (parameterized) {
+          Template.prototype.formNested = function () {
             var datum, key, memo, segments, _ref;
-            if (parameterized == null) {
-              parameterized = false;
-            }
             memo = {};
-            _ref = parameterized ? this.parameterized() : this._data;
+            _ref = this._data;
             for (key in _ref) {
               datum = _ref[key];
               segments = nameFormatter.bracketedSegments(key);
@@ -627,24 +614,39 @@ angular.module('Collection').provider('Template', function () {
           Template.prototype.submit = function () {
             return this.client(this.href(), {
               method: this._submitMethod,
-              data: this.formNested(true)
+              data: this.parametersNested()
             });
           };
           Template.prototype.refresh = function () {
             return this.client(this.href(), {
               method: 'GET',
-              params: this.form(true)
+              params: this.parameters
             });
           };
-          Template.prototype.parameterized = function () {
+          Template.prototype.parameters = function () {
             var datum, k, result, _ref;
             result = {};
             _ref = this._data;
             for (k in _ref) {
               datum = _ref[k];
-              result[datum.parameter || datum.name] = datum;
+              if (datum.template) {
+                angular.extend(result, datum.template.parameters());
+              } else {
+                result[datum.parameter || datum.name] = datum.value;
+              }
             }
             return result;
+          };
+          Template.prototype.parametersNested = function () {
+            var key, memo, segments, value, _ref;
+            memo = {};
+            _ref = this.parameters();
+            for (key in _ref) {
+              value = _ref[key];
+              segments = nameFormatter.bracketedSegments(key);
+              nameFormatter._nestedAssign(memo, segments, value);
+            }
+            return memo;
           };
           TemplateDatum = function () {
             var empty;
@@ -661,6 +663,10 @@ angular.module('Collection').provider('Template', function () {
               this.options = this._datum.options || [];
               this.errors = this._datum.errors || [];
               this.validationErrors = [];
+              this.template = null;
+              if (this._datum.template) {
+                this.template = new Template(null, this._datum.template);
+              }
             }
             TemplateDatum.prototype.valid = function () {
               var isError, name, _ref;
