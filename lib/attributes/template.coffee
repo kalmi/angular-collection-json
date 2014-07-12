@@ -92,7 +92,11 @@ angular.module('Collection').provider('Template', ->
 
       parameterized: ->
         result = {}
-        result[datum.parameter || datum.name] = datum for k, datum of @_data
+        for k, datum of @_data
+          if datum.template
+            angular.extend result, datum.template.parameterized()
+          else
+            result[datum.parameter || datum.name] = datum
         result
 
 

@@ -64,7 +64,8 @@ angular.module('Collection').service('cjRecursiveTemplate',function(){
         {"name": "sports", "parameter": "quiz[sports]", "prompt": "Sports",
           "template": {
             "data": [
-              {"name": "rugby", "prompt": "Best team?", "value": "All Blacks" }
+              {"name": "rugby", "prompt": "Best team?", "value": "All Blacks" },
+              {"name": "nfl", "parameter": "quiz[sports][nfl]", "prompt": "Best nfl?", "value": "Saints" }
             ]
           }
         },

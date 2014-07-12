@@ -499,3 +499,13 @@ describe "Attributes", ->
     it "reads templates recursively", ->
       template = collection.template()
       expect(template.data.sports.template.rugby).toEqual 'All Blacks'
+
+    it "serializes using just name", ->
+      template = collection.template()
+      nested = template.formNested()
+      expect(nested.rugby).toEqual 'All Blacks'
+
+    it "serializes using parameter", ->
+      template = collection.template()
+      nested = template.formNested()
+      expect(nested.quiz.sports.nfl).toEqual 'Saints'
