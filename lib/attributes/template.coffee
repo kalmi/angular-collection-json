@@ -88,7 +88,7 @@ angular.module('Collection').provider('Template', ->
         @client @href(), method: @_submitMethod, data: @parametersNested()
 
       refresh: ->
-        @client @href(), method: 'GET', params: @parameters
+        @client @href(), method: 'GET', params: @parameters()
 
       parameters: ->
         result = {}
