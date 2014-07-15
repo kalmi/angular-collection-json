@@ -12,6 +12,8 @@ Documentation will be finished once the API is solidified.
 
 ## Example
 
+### Get then list users, and add an address
+
 ```js
 var cj = $injector.get('cj');
 
@@ -43,6 +45,37 @@ cj("http://example.com").then(function(collection){
 });
 ```
 
+### Edit an existing user
+
+```js
+var cj = $injector.get('cj');
+
+// Start at the root of our api
+cj("http://example.com").then(function(collection){
+
+  // We get back a collection object
+  // Let's follow the 'users' link
+  collection.link('users').follow().then(function(collection){
+
+    // Print out the current users
+    console.log(collection.items());
+
+    // Edit the first user
+    user0 = collection.items()[0].edit()
+
+    user0.firstName = "Billy";
+    user0.lastName = "Jones";
+    // PUT the user to save
+    user0.submit().then(function(collection){
+        console.log("Updated the user!!!");
+    }, function(error){
+        console.log("Something went wrong");
+    });
+
+  });
+});
+```
+
 ## Configuration
 
 ```js
@@ -59,7 +92,3 @@ angular.module('myApp', ['cj']).configure(function(cjProvider){
 
 });
 ```
-
-
-
-

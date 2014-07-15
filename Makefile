@@ -72,7 +72,7 @@ test_sauce:
 	@./node_modules/karma/bin/karma start --no-browsers
 
 release: all
-	@git commit -am 'rebuild for release'
+	@git commit -am 'build(release): rebuild for release'
 	@bower version patch
 
 .PHONY: all test test_sauce clean clean_deps dist_test dist/angular-collection-json.js
