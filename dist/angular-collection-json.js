@@ -657,7 +657,7 @@ angular.module('Collection').provider('Template', function() {
         Template.prototype.refresh = function() {
           return this.client(this.href(), {
             method: 'GET',
-            params: this.parameters
+            params: this.parameters()
           });
         };
 
