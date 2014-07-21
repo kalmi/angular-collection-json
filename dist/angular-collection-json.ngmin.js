@@ -32,6 +32,9 @@ angular.module('Collection', []).provider('cj', function () {
         };
         client.parse = function (source) {
           var collectionObj, e, _ref;
+          if (!source) {
+            return;
+          }
           if (angular.isString(source)) {
             try {
               source = JSON.parse(source);
@@ -142,7 +145,8 @@ angular.module('Collection').provider('Collection', function () {
       'Item',
       'Query',
       'Template',
-      function (Link, Item, Query, Template) {
+      '$injector',
+      function (Link, Item, Query, Template, $injector) {
         var Collection;
         return Collection = function () {
           function Collection(collection) {
@@ -152,6 +156,7 @@ angular.module('Collection').provider('Collection', function () {
             this._items = null;
             this._template = null;
             this.error = this._collection.error;
+            this.client = $injector.get('cj');
           }
           Collection.prototype.href = function () {
             return this._collection.href;
@@ -251,6 +256,9 @@ angular.module('Collection').provider('Collection', function () {
           Collection.prototype.meta = function (name) {
             var _ref;
             return (_ref = this._collection.meta) != null ? _ref[name] : void 0;
+          };
+          Collection.prototype.remove = function () {
+            return this.client(this.href(), { method: 'DELETE' });
           };
           return Collection;
         }();
