@@ -308,6 +308,15 @@ describe "Attributes", ->
           expect(collection.version()).toEqual data.collection.version
       $httpBackend.flush()
 
+    it "should remove a collection", ->
+      result = null
+      cj(cjUrl).then (collection) -> result = collection
+      $httpBackend.flush()
+      $httpBackend.expectDELETE(result.href())
+      $httpBackend.whenDELETE(result.href()).respond()
+      result.remove()
+      $httpBackend.flush()
+
     it "should delete items with new collections", ->
       result = null
       cj(cjUrl).then (collection) -> result = collection

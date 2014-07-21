@@ -1,5 +1,5 @@
 angular.module('Collection').provider('Collection', ->
-  $get: (Link, Item, Query, Template) ->
+  $get: (Link, Item, Query, Template, $injector) ->
     class Collection
       constructor: (collection)->
         @_collection = collection
@@ -8,6 +8,9 @@ angular.module('Collection').provider('Collection', ->
         @_items = null
         @_template = null
         @error = @_collection.error
+        # delay the dependency
+        @client = $injector.get 'cj'
+
 
       href: ->
         @_collection.href
@@ -53,4 +56,7 @@ angular.module('Collection').provider('Collection', ->
 
       meta: (name)->
         @_collection.meta?[name]
+
+      remove: ()->
+        @client @href(), method: 'DELETE'
 )
