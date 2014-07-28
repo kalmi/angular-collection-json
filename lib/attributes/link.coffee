@@ -18,5 +18,5 @@ angular.module('Collection').provider 'Link', ->
         @_link.name
 
 
-      follow: ->
-        @client @href()
+      follow: (options) ->
+        @client @href(), options

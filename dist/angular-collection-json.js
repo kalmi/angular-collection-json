@@ -410,8 +410,8 @@ angular.module('Collection').provider('Link', function() {
           return this._link.name;
         };
 
-        Link.prototype.follow = function() {
-          return this.client(this.href());
+        Link.prototype.follow = function(options) {
+          return this.client(this.href(), options);
         };
 
         return Link;
