@@ -18,10 +18,10 @@ angular.module('Collection').provider('Collection', ->
       version: ->
         @_collection.version
 
-      links: ->
+      links: (rel)->
         return @_links if @_links
 
-        @_links = (new Link l for l in (@_collection.links || []))
+        @_links = (new Link l for l in (@_collection.links || []) when !rel || l.rel == rel)
 
       link: (rel)->
         for l in @links()
