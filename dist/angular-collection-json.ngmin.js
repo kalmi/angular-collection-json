@@ -164,7 +164,7 @@ angular.module('Collection').provider('Collection', function () {
           Collection.prototype.version = function () {
             return this._collection.version;
           };
-          Collection.prototype.links = function () {
+          Collection.prototype.links = function (rel) {
             var l;
             if (this._links) {
               return this._links;
@@ -175,7 +175,9 @@ angular.module('Collection').provider('Collection', function () {
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 l = _ref[_i];
-                _results.push(new Link(l));
+                if (!rel || l.rel === rel) {
+                  _results.push(new Link(l));
+                }
               }
               return _results;
             }.call(this);
