@@ -309,7 +309,7 @@ angular.module('Collection').provider('Item', function() {
           return (_ref = this.datum(key)) != null ? _ref.value : void 0;
         };
 
-        Item.prototype.fields = function(href) {
+        Item.prototype.fields = function() {
           var item, memo, segments, _i, _len, _ref;
           memo = {};
           _ref = this._item.data;
@@ -319,6 +319,10 @@ angular.module('Collection').provider('Item', function() {
             nameFormatter._nestedAssign.call(this, memo, segments, item.value);
           }
           return memo;
+        };
+
+        Item.prototype.related = function() {
+          return this._item.related;
         };
 
         Item.prototype.promptFor = function(key) {

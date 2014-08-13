@@ -15,12 +15,15 @@ angular.module('Collection').provider('Item', ->
       get: (key)->
         @datum(key)?.value
 
-      fields: (href) ->
+      fields: ->
         memo = {}
         for item in @_item.data
           segments = nameFormatter.bracketedSegments item.name
           nameFormatter._nestedAssign.call @, memo, segments, item.value
         memo
+
+      related: ->
+        @_item.related
 
       promptFor: (key)->
         @datum(key)?.prompt
