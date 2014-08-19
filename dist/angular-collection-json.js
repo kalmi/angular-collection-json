@@ -31,7 +31,7 @@ angular.module('Collection', []).provider('cj', function() {
       client.parse = function(source) {
         var collectionObj, e, _ref;
         if (!source) {
-          return;
+          return $q.reject(new Error('source is empty'));
         }
         if (angular.isString(source)) {
           try {
