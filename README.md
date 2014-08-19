@@ -1,4 +1,5 @@
 # Collection+JSON Client for AngularJS
+[![Build Status](https://travis-ci.org/Medycation/angular-collection-json.svg?branch=master)](https://travis-ci.org/Medycation/angular-collection-json)
 
 Documentation will be finished once the API is solidified.
 
