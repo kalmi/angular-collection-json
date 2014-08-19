@@ -41,6 +41,12 @@ describe "Attributes", ->
         scope.$digest()
         expect(error).toBeDefined("No error was returned")
 
+      it "should throw an exception when empty", ->
+        error = null
+        cj.parse('').catch (e) -> error = e
+        scope.$digest()
+        expect(error).toBeDefined("No error was returned")
+
     describe "[error](http://amundsen.com/media-types/collection/format/#objects-error)", ->
 
       it "should have an error", ->

@@ -19,8 +19,9 @@ angular.module('Collection', []).provider 'cj', ->
       )
 
     client.parse = (source) ->
-      # If null is returned or no collection info, don't attempt to parse
-      return unless source
+
+      if !source
+        return $q.reject new Error 'source is empty'
 
       if angular.isString source
         try
