@@ -126,6 +126,33 @@ angular.module('Collection').service('nameFormatter', function () {
     _nestedAssign: _nestedAssign
   };
 });
+angular.module('Collection').factory('ReadonlyCache', function () {
+  var ReadonlyCache;
+  return ReadonlyCache = function () {
+    var noop;
+    noop = angular.noop;
+    function ReadonlyCache(_inner) {
+      this._inner = _inner;
+    }
+    ReadonlyCache.prototype.get = function (key) {
+      return this._inner[key];
+    };
+    ReadonlyCache.prototype.put = function (key, val) {
+      return val;
+    };
+    ReadonlyCache.prototype.remove = noop;
+    ReadonlyCache.prototype.removeAll = noop;
+    ReadonlyCache.prototype.destroy = noop;
+    ReadonlyCache.prototype.info = function () {
+      return {
+        id: null,
+        size: Object.keys(this._inner).length,
+        readonly: true
+      };
+    };
+    return ReadonlyCache;
+  }();
+});
 var __slice = [].slice;
 angular.module('Collection').service('sealNested', function () {
   var sealNested;
@@ -145,9 +172,22 @@ angular.module('Collection').provider('Collection', function () {
       'Item',
       'Query',
       'Template',
+      'ReadonlyCache',
       '$injector',
-      function (Link, Item, Query, Template, $injector) {
-        var Collection;
+      function (Link, Item, Query, Template, ReadonlyCache, $injector) {
+        var Collection, buildCache;
+        buildCache = function (embedded) {
+          var c, embeddedLookup, _i, _len, _ref;
+          embeddedLookup = {};
+          _ref = embedded || [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            c = _ref[_i];
+            if (c.collection) {
+              embeddedLookup[c.collection.href] = c;
+            }
+          }
+          return new ReadonlyCache(embeddedLookup);
+        };
         return Collection = function () {
           function Collection(collection) {
             this._collection = collection;
@@ -157,6 +197,7 @@ angular.module('Collection').provider('Collection', function () {
             this._template = null;
             this.error = this._collection.error;
             this.client = $injector.get('cj');
+            this._cache = buildCache(this._collection.embedded);
           }
           Collection.prototype.href = function () {
             return this._collection.href;
@@ -176,7 +217,7 @@ angular.module('Collection').provider('Collection', function () {
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 l = _ref[_i];
                 if (!rel || l.rel === rel) {
-                  _results.push(new Link(l));
+                  _results.push(new Link(l, this._cache));
                 }
               }
               return _results;
@@ -204,7 +245,7 @@ angular.module('Collection').provider('Collection', function () {
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 i = _ref[_i];
-                _results.push(new Item(i, template));
+                _results.push(new Item(i, template, this._cache));
               }
               return _results;
             }.call(this);
@@ -278,9 +319,10 @@ angular.module('Collection').provider('Item', function () {
       function (Link, Template, $injector, nameFormatter) {
         var Item;
         return Item = function () {
-          function Item(_item, _template) {
+          function Item(_item, _template, _cache) {
             this._item = _item;
             this._template = _template;
+            this._cache = _cache;
             this.client = $injector.get('cj');
             this._links = null;
           }
@@ -333,7 +375,7 @@ angular.module('Collection').provider('Item', function () {
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 l = _ref[_i];
-                _results.push(new Link(l));
+                _results.push(new Link(l, this._cache));
               }
               return _results;
             }.call(this);
@@ -377,8 +419,9 @@ angular.module('Collection').provider('Link', function () {
       function ($injector) {
         var Link;
         return Link = function () {
-          function Link(_link) {
+          function Link(_link, _cache) {
             this._link = _link;
+            this._cache = _cache;
             this.client = $injector.get('cj');
           }
           Link.prototype.href = function () {
@@ -394,6 +437,7 @@ angular.module('Collection').provider('Link', function () {
             return this._link.name;
           };
           Link.prototype.follow = function (options) {
+            options = angular.extend({ cache: this._cache }, options);
             return this.client(this.href(), options);
           };
           return Link;
@@ -746,34 +790,3 @@ angular.module('Collection').provider('Template', function () {
     ]
   };
 });
-angular.module('Collection').directive('cjBind', [
-  'nameFormatter',
-  function (nameFormatter) {
-    return {
-      restrict: 'A',
-      require: 'ngModel',
-      link: function (scope, el, attr, ctrl) {
-        var bracketedName, datumName, expr;
-        datumName = attr.cjBind;
-        bracketedName = nameFormatter.bracketed(datumName);
-        expr = '' + attr.ngModel + '.get(\'' + datumName + '\')';
-        if (!attr.name) {
-          el.attr('name', bracketedName);
-        }
-        if (!attr.id) {
-          el.attr('id', '' + scope.$id + '-' + bracketedName);
-        }
-        scope.$watch(expr, function (val, old) {
-          if (ctrl.$viewValue !== val) {
-            ctrl.$viewValue = val;
-            return ctrl.$render();
-          }
-        });
-        return ctrl.$parsers.push(function (val) {
-          ctrl.$modelValue.set(datumName, val);
-          return ctrl.$modelValue;
-        });
-      }
-    };
-  }
-]);
