@@ -1,7 +1,7 @@
 angular.module('Collection').provider 'Link', ->
   $get: ($injector) ->
     class Link
-      constructor: (@_link)->
+      constructor: (@_link, @_cache)->
         # delay the dependency
         @client = $injector.get 'cj'
 
@@ -18,4 +18,5 @@ angular.module('Collection').provider 'Link', ->
         @_link.name
 
       follow: (options) ->
+        options = angular.extend {cache: @_cache}, options
         @client @href(), options

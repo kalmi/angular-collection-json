@@ -1,7 +1,7 @@
 angular.module('Collection').provider('Item', ->
   $get: (Link, Template, $injector, nameFormatter) ->
     class Item
-      constructor: (@_item, @_template)->
+      constructor: (@_item, @_template, @_cache)->
         # delay the dependency
         @client = $injector.get 'cj'
         @_links = null
@@ -34,7 +34,7 @@ angular.module('Collection').provider('Item', ->
       links: ->
         return @_links if @_links
 
-        @_links = (new Link l for l in (@_item.links || []))
+        @_links = (new Link l, @_cache for l in (@_item.links || []))
 
       link: (rel)->
         for l in @links()
