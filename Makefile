@@ -34,7 +34,6 @@ dist/angular-collection-json.js: node_modules dist lib
 		lib/client.coffee \
 		lib/utils/*.coffee \
 		lib/attributes/*.coffee \
-		lib/directives/*.coffee \
 		> dist/angular-collection-json.js
 
 dist/angular-collection-json.ngmin.js: dist/angular-collection-json.js
