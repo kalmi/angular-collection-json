@@ -387,21 +387,34 @@ angular.module('Collection').provider('Item', function() {
 
         Item.prototype.links = function(rel) {
           var l;
-          if (this._links) {
-            return this._links;
-          }
-          return this._links = (function() {
-            var _i, _len, _ref, _results;
-            _ref = this._item.links || [];
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              l = _ref[_i];
-              if (!rel || l.rel === rel) {
+          if (!this._links) {
+            this._links = (function() {
+              var _i, _len, _ref, _results;
+              _ref = this._item.links || [];
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                l = _ref[_i];
                 _results.push(new Link(l, this._cache));
               }
-            }
-            return _results;
-          }).call(this);
+              return _results;
+            }).call(this);
+          }
+          if (!rel) {
+            return this._links;
+          } else {
+            return (function() {
+              var _i, _len, _ref, _results;
+              _ref = this._links || [];
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                l = _ref[_i];
+                if (l.rel() === rel) {
+                  _results.push(l);
+                }
+              }
+              return _results;
+            }).call(this);
+          }
         };
 
         Item.prototype.link = function(rel) {
