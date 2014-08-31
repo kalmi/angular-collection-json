@@ -35,6 +35,12 @@
       expect(item.links('blog').length).toBe 1
       expect(item.links('blog')[0]).toBe item.link('blog')
 
+    it "should filter links by array of rels", ->
+      item = collection.items()[0]
+      expect(item.links(['blog', 'avatar']).length).toBe 2
+      expect(item.links(['blog', 'avatar'])[0]).toBe item.link('blog')
+      expect(item.links(['blog', 'avatar'])[1]).toBe item.link('avatar')
+
     it "creates templates from item data", ->
       for orig in data.collection.items
         item = collection.item(orig.href)

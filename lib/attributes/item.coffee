@@ -39,7 +39,8 @@ angular.module('Collection').provider('Item', ->
         if !rel
           return @_links
         else
-          return (l for l in (@_links || []) when l.rel() == rel)
+          rel = [rel] if typeof rel == 'string'
+          return (l for l in (@_links || []) when rel.indexOf(l.rel()) > -1)
 
       link: (rel)->
         for l in @links()
