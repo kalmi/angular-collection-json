@@ -364,7 +364,7 @@ angular.module('Collection').provider('Item', function () {
           Item.prototype.load = function () {
             return this.client(this.href());
           };
-          Item.prototype.links = function () {
+          Item.prototype.links = function (rel) {
             var l;
             if (this._links) {
               return this._links;
@@ -375,7 +375,9 @@ angular.module('Collection').provider('Item', function () {
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 l = _ref[_i];
-                _results.push(new Link(l, this._cache));
+                if (!rel || l.rel === rel) {
+                  _results.push(new Link(l, this._cache));
+                }
               }
               return _results;
             }.call(this);
