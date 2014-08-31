@@ -31,10 +31,10 @@ angular.module('Collection').provider('Item', ->
       load: ->
         @client @href()
 
-      links: ->
+      links: (rel)->
         return @_links if @_links
 
-        @_links = (new Link l, @_cache for l in (@_item.links || []))
+        @_links = (new Link l, @_cache for l in (@_item.links || []) when !rel || l.rel == rel)
 
       link: (rel)->
         for l in @links()
