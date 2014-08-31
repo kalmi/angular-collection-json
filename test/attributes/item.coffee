@@ -29,6 +29,12 @@
           link = item.link origLink.rel
           expect(link.href()).toEqual origLink.href
 
+    it "should filter links by rel", ->
+      item = collection.items()[0]
+      expect(item.links().length).toBe 2
+      expect(item.links('blog').length).toBe 1
+      expect(item.links('blog')[0]).toBe item.link('blog')
+
     it "creates templates from item data", ->
       for orig in data.collection.items
         item = collection.item(orig.href)

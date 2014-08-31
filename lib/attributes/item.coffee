@@ -32,9 +32,14 @@ angular.module('Collection').provider('Item', ->
         @client @href()
 
       links: (rel)->
-        return @_links if @_links
 
-        @_links = (new Link l, @_cache for l in (@_item.links || []) when !rel || l.rel == rel)
+        if !@_links
+          @_links = (new Link l, @_cache for l in (@_item.links || []))
+
+        if !rel
+          return @_links
+        else
+          return (l for l in (@_links || []) when l.rel() == rel)
 
       link: (rel)->
         for l in @links()
