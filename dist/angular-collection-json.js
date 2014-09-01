@@ -636,7 +636,6 @@ angular.module('Collection').provider('Template', function() {
           for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
             d = _ref1[_j];
             segments = nameFormatter.bracketedSegments(d.name);
-            sealNested(this, segments);
           }
         }
 
