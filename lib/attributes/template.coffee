@@ -37,7 +37,7 @@ angular.module('Collection').provider('Template', ->
 
         for d in (@_template.data || [])
           segments = nameFormatter.bracketedSegments d.name
-          sealNested @, segments
+          # sealNested @, segments
 
       datum: (key)->
         formatted = nameFormatter.bracketed key

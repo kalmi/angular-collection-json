@@ -78,7 +78,8 @@ describe "[template](http://amundsen.com/media-types/collection/format/#objects-
     expect(newItem.options.address.city).toEqual []
     expect(newItem.prompts.address.city).toEqual 'City'
 
-  it "wont set nonexistant properties", ->
+  # We are no longer sealing
+  xit "wont set nonexistant properties", ->
     newItem = collection.template()
 
     newItem.missing = 'missing'
