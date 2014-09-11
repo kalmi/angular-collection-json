@@ -37,6 +37,15 @@ describe "HTTP Requests", ->
         expect(collection.version()).toEqual data.collection.version
     $httpBackend.flush()
 
+  it "shoul refresh with the same collection", ->
+    result = null
+    cj(cjUrl).then (collection) -> result = collection
+    $httpBackend.flush()
+    $httpBackend.whenGET(result.href()).respond data
+    result.refresh().then (collection) ->
+      expect(collection.version()).toEqual data.collection.version
+    $httpBackend.flush()
+
   it "should respond to query requests with new collections", ->
     result = null
     cj(cjUrl).then (collection) -> result = collection

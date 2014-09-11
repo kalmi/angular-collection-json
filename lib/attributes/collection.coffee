@@ -63,4 +63,7 @@ angular.module('Collection').provider('Collection', ->
 
       remove: ->
         @client @href(), method: 'DELETE'
+
+      refresh: ->
+        @client @href(), method: 'GET'
 )
