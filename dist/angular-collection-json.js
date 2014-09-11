@@ -321,6 +321,12 @@ angular.module('Collection').provider('Collection', function() {
           });
         };
 
+        Collection.prototype.refresh = function() {
+          return this.client(this.href(), {
+            method: 'GET'
+          });
+        };
+
         return Collection;
 
       })();

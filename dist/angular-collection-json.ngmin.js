@@ -303,6 +303,9 @@ angular.module('Collection').provider('Collection', function () {
           Collection.prototype.remove = function () {
             return this.client(this.href(), { method: 'DELETE' });
           };
+          Collection.prototype.refresh = function () {
+            return this.client(this.href(), { method: 'GET' });
+          };
           return Collection;
         }();
       }
