@@ -21,6 +21,14 @@ describe "Client", ->
       scope.$digest()
       expect(spy).not.toHaveBeenCalled()
 
+    it 'still rejects if collection is missing', ->
+      provider.setStrictVersion false
+      spy = jasmine.createSpy 'reject'
+      client = $injector.invoke provider.$get
+      client.parse(notacollection: true).catch spy
+      scope.$digest()
+      expect(spy).toHaveBeenCalled()
+
   describe "urlTransform", ->
     $httpBackend = null
 

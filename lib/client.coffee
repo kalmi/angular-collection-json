@@ -29,6 +29,9 @@ angular.module('Collection', []).provider 'cj', ->
         catch e
           return $q.reject e
 
+      if !angular.isObject source.collection
+        return $q.reject new Error "Source 'collection' is not an object"
+
       if strictVersion && source.collection?.version isnt "1.0"
         return $q.reject new Error "Collection does not conform to Collection+JSON 1.0 Spec"
 
