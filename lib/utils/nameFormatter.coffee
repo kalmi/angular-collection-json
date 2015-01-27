@@ -15,7 +15,7 @@ angular.module('Collection').service 'nameFormatter', ->
     if tail.length
       obj['name'] = head
       obj['value'] = {}
-      _nestedAssign(obj['value'], tail, value)
+      _nestedAssignVerbose(obj['value'], tail, value)
     else
       obj['name'] = head
       obj['value'] = value
@@ -44,4 +44,4 @@ angular.module('Collection').service 'nameFormatter', ->
     segments.join ''
 
   _nestedAssign: _nestedAssign
-
+  _nestedAssignVerbose: _nestedAssignVerbose

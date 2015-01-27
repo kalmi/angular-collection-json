@@ -102,7 +102,7 @@ angular.module('Collection').service('nameFormatter', function() {
     if (tail.length) {
       obj['name'] = head;
       obj['value'] = {};
-      return _nestedAssign(obj['value'], tail, value);
+      return _nestedAssignVerbose(obj['value'], tail, value);
     } else {
       obj['name'] = head;
       obj['value'] = value;
@@ -144,7 +144,8 @@ angular.module('Collection').service('nameFormatter', function() {
       }
       return segments.join('');
     },
-    _nestedAssign: _nestedAssign
+    _nestedAssign: _nestedAssign,
+    _nestedAssignVerbose: _nestedAssignVerbose
   };
 });
 angular.module('Collection').factory('ReadonlyCache', function() {
@@ -822,7 +823,7 @@ angular.module('Collection').provider('Template', function() {
             nameFormatter._nestedAssignVerbose(obj, segments, value);
             arrayOfObjects.push(obj);
           }
-          return JSON.parse({
+          return JSON.stringify({
             template: {
               data: arrayOfObjects
             }
