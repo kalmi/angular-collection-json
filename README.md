@@ -91,5 +91,9 @@ angular.module('myApp', ['cj']).configure(function(cjProvider){
   // Disable strict version checking (collections without version "1.0")
   cjProvider.setStrictVersion(false);
 
+  // To use a much verbose format for templates, which is compatible with the standard
+  // http://amundsen.com/media-types/collection/format/#read-write
+  cjProvider.setStrictTemplate(true);
+
 });
 ```
