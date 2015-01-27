@@ -819,14 +819,14 @@ angular.module('Collection').provider('Template', function() {
             value = _ref[key];
             obj = {};
             segments = nameFormatter.bracketedSegments(key);
-            nameFormatter._nestedAssign(obj, segments, value);
+            nameFormatter._nestedAssignVerbose(obj, segments, value);
             arrayOfObjects.push(obj);
           }
-          return {
+          return JSON.parse({
             template: {
               data: arrayOfObjects
             }
-          };
+          });
         };
 
         TemplateDatum = (function() {

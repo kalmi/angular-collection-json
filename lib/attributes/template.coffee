@@ -112,9 +112,9 @@ angular.module('Collection').provider('Template', ->
         for key, value of @parameters()
           obj = {}
           segments = nameFormatter.bracketedSegments key
-          nameFormatter._nestedAssign obj, segments, value
+          nameFormatter._nestedAssignVerbose obj, segments, value
           arrayOfObjects.push obj
-        { template: { data : arrayOfObjects } }
+        JSON.parse { template: { data : arrayOfObjects } }
 
 
 
