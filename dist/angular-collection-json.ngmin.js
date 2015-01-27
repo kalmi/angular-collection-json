@@ -1,13 +1,17 @@
 angular.module('Collection', []).provider('cj', function () {
-  var strictVersion, urlTransform;
+  var strictTemplate, strictVersion, urlTransform;
   urlTransform = angular.identity;
   strictVersion = true;
+  strictTemplate = false;
   return {
     setUrlTransform: function (transform) {
       return urlTransform = transform;
     },
     setStrictVersion: function (strict) {
       return strictVersion = strict;
+    },
+    setStrictTemplate: function (template) {
+      return strictTemplate = template;
     },
     $get: [
       'Collection',
@@ -49,7 +53,7 @@ angular.module('Collection', []).provider('cj', function () {
           if (strictVersion && ((_ref = source.collection) != null ? _ref.version : void 0) !== '1.0') {
             return $q.reject(new Error('Collection does not conform to Collection+JSON 1.0 Spec'));
           }
-          collectionObj = new Collection(source.collection);
+          collectionObj = new Collection(source.collection, { strictTemplate: strictTemplate });
           if (collectionObj.error) {
             e = new Error('Parsed collection contains errors');
             e.collection = collectionObj;
@@ -79,7 +83,7 @@ angular.module('Collection').service('defineNested', function () {
 });
 var __slice = [].slice;
 angular.module('Collection').service('nameFormatter', function () {
-  var notEmpty, _nestedAssign;
+  var notEmpty, _nestedAssign, _nestedAssignVerbose;
   _nestedAssign = function (obj, segments, value) {
     var head, tail;
     head = segments[0], tail = 2 <= segments.length ? __slice.call(segments, 1) : [];
@@ -88,6 +92,19 @@ angular.module('Collection').service('nameFormatter', function () {
       return _nestedAssign(obj[head], tail, value);
     } else {
       obj[head] = value;
+      return obj;
+    }
+  };
+  _nestedAssignVerbose = function (obj, segments, value) {
+    var head, tail;
+    head = segments[0], tail = 2 <= segments.length ? __slice.call(segments, 1) : [];
+    if (tail.length) {
+      obj['name'] = head;
+      obj['value'] = {};
+      return _nestedAssign(obj['value'], tail, value);
+    } else {
+      obj['name'] = head;
+      obj['value'] = value;
       return obj;
     }
   };
@@ -192,7 +209,11 @@ angular.module('Collection').provider('Collection', function () {
           return new ReadonlyCache(embeddedLookup);
         };
         return Collection = function () {
-          function Collection(collection) {
+          function Collection(collection, options) {
+            if (options == null) {
+              options = {};
+            }
+            this._strictTemplate = options.strictTemplate || false;
             this._collection = collection;
             this._links = null;
             this._queries = null;
@@ -287,7 +308,7 @@ angular.module('Collection').provider('Collection', function () {
             if (!this._collection.template) {
               return;
             }
-            return new Template(this._collection.href, this._collection.template);
+            return new Template(this._collection.href, this._collection.template, { strict: this._strictTemplate });
           };
           Collection.prototype.templateAll = function (ns) {
             var item, _i, _len, _ref, _results;
@@ -545,6 +566,7 @@ angular.module('Collection').provider('Template', function () {
             this.client = $injector.get('cj');
             this._data = {};
             this._submitMethod = opts.method || 'POST';
+            this._strict = opts.strict || false;
             this.options = {};
             this.prompts = {};
             this.errors = {};
@@ -694,7 +716,7 @@ angular.module('Collection').provider('Template', function () {
           Template.prototype.submit = function () {
             return this.client(this.href(), {
               method: this._submitMethod,
-              data: this.parametersNested()
+              data: this._strict ? this.parametersNestedVerbose() : this.parametersNested()
             });
           };
           Template.prototype.refresh = function () {
@@ -727,6 +749,19 @@ angular.module('Collection').provider('Template', function () {
               nameFormatter._nestedAssign(memo, segments, value);
             }
             return memo;
+          };
+          Template.prototype.parametersNestedVerbose = function () {
+            var arrayOfObjects, key, obj, segments, value, _ref;
+            arrayOfObjects = [];
+            _ref = this.parameters();
+            for (key in _ref) {
+              value = _ref[key];
+              obj = {};
+              segments = nameFormatter.bracketedSegments(key);
+              nameFormatter._nestedAssign(obj, segments, value);
+              arrayOfObjects.push(obj);
+            }
+            return { template: { data: arrayOfObjects } };
           };
           TemplateDatum = function () {
             var empty;
