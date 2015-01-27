@@ -24,10 +24,10 @@
     "Makefile"
   ],
   "dependencies": {
-    "angular": "~1.2"
+    "angular": "^1.2"
   },
   "devDependencies": {
     "lodash": "2.4.1",
-    "angular-mocks": "~1.2"
+    "angular-mocks": "^1.2"
   }
 }
