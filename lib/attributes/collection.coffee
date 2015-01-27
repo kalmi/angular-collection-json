@@ -8,7 +8,8 @@ angular.module('Collection').provider('Collection', ->
       new ReadonlyCache embeddedLookup
 
     class Collection
-      constructor: (collection)->
+      constructor: (collection, options)->
+        @_strictTemplate = options?.strictTemplate || false
         @_collection = collection
         @_links = null
         @_queries = null
@@ -53,7 +54,7 @@ angular.module('Collection').provider('Collection', ->
 
       template: ->
         return unless @_collection.template
-        new Template @_collection.href, @_collection.template
+        new Template @_collection.href, @_collection.template, { strict: @_strictTemplate}
 
       templateAll: (ns)->
         item.edit(ns) for item in @items()

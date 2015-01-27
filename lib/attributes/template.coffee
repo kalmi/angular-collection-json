@@ -7,6 +7,7 @@ angular.module('Collection').provider('Template', ->
 
         @_data = {}
         @_submitMethod = opts.method || 'POST'
+        @_strict = opts.strict || false
 
         @options = {}
         @prompts = {}
@@ -85,7 +86,7 @@ angular.module('Collection').provider('Template', ->
         true
 
       submit: ->
-        @client @href(), method: @_submitMethod, data: @parametersNested()
+        @client @href(), method: @_submitMethod, data: if @_strict then @parametersNestedVerbose() else @parametersNested()
 
       refresh: ->
         @client @href(), method: 'GET', params: @parameters()
@@ -105,6 +106,15 @@ angular.module('Collection').provider('Template', ->
           segments = nameFormatter.bracketedSegments key
           nameFormatter._nestedAssign memo, segments, value
         memo
+
+      parametersNestedVerbose: ->
+        arrayOfObjects = [];
+        for key, value of @parameters()
+          obj = {}
+          segments = nameFormatter.bracketedSegments key
+          nameFormatter._nestedAssign obj, segments, value
+          arrayOfObjects.push obj
+        { template: { data : arrayOfObjects } }
 
 
 

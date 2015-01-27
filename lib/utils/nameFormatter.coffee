@@ -10,6 +10,17 @@ angular.module('Collection').service 'nameFormatter', ->
       obj[head] = value
       obj
 
+  _nestedAssignVerbose = (obj, segments, value) ->
+    [head, tail...] = segments
+    if tail.length
+      obj['name'] = head
+      obj['value'] = {}
+      _nestedAssign(obj['value'], tail, value)
+    else
+      obj['name'] = head
+      obj['value'] = value
+      obj
+
   notEmpty = (s) -> s != ''
 
 

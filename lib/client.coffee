@@ -1,9 +1,11 @@
 angular.module('Collection', []).provider 'cj', ->
   urlTransform = angular.identity
   strictVersion = true
+  strictTemplate = false;
 
   setUrlTransform: (transform) -> urlTransform = transform
   setStrictVersion: (strict) -> strictVersion = strict
+  setStrictTemplate: (template) -> strictTemplate = template
 
   $get: (Collection, $http, $q) ->
     client = (href, options) ->
@@ -35,7 +37,7 @@ angular.module('Collection', []).provider 'cj', ->
       if strictVersion && source.collection?.version isnt "1.0"
         return $q.reject new Error "Collection does not conform to Collection+JSON 1.0 Spec"
 
-      collectionObj = new Collection source.collection
+      collectionObj = new Collection source.collection, { strictTemplate: strictTemplate }
 
       if collectionObj.error
         e = new Error('Parsed collection contains errors')
