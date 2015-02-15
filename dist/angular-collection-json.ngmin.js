@@ -23,15 +23,33 @@ angular.module('Collection', []).provider('cj', function () {
           var config;
           config = angular.extend({ url: urlTransform(href) }, options);
           return $http(config).then(function (res) {
-            return client.parse(res.data);
+            return client.handleSuccess(res, config);
           }, function (res) {
-            return client.parse(res.data).then(function (collection) {
-              var e;
-              e = new Error('request failed');
-              e.response = res;
-              e.collection = collection;
-              return $q.reject(e);
-            });
+            return client.handleError(res, config);
+          });
+        };
+        client.handleSuccess = function (res, config) {
+          var collectionObj, redirect;
+          if (res.status === 201) {
+            redirect = res.headers('Location');
+            if (!redirect) {
+              return $q.reject(new Error('Http status is 201, but Location header not set'));
+            } else {
+              client(redirect, config);
+            }
+          } else if (res.status === 204) {
+            collectionObj = new Collection({ 'version': '1.0' }, { strictTemplate: strictTemplate });
+            $q.when(collectionObj);
+          }
+          return client.parse(res.data(config));
+        };
+        client.handleError = function (res, config) {
+          return client.parse(res.data).then(function (collection) {
+            var e;
+            e = new Error('request failed');
+            e.response = res;
+            e.collection = collection;
+            return $q.reject(e);
           });
         };
         client.parse = function (source) {
