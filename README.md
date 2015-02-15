@@ -95,7 +95,7 @@ angular.module('myApp', ['cj']).configure(function(cjProvider){
   // which is invoked before processing the template
   cjProvider.setSuccessHandler(function(response, q, config){
 
-    # follow redirect on 201 - created
+    //follow redirect on 201 - created
     if (res.status == 201){
       redirect = res.headers('Location');
       if(!redirect) {
@@ -106,10 +106,10 @@ angular.module('myApp', ['cj']).configure(function(cjProvider){
       }
     }
 
-    # return success and empty collection on 204 - no content
+    //return success and empty collection on 204 - no content
     else if (res.status == 204) {
       collectionObj = new Collection({"version":"1.0"});
-      return $q.when collectionObj;
+      return $q.when(collectionObj);
     }
     
   });
@@ -118,7 +118,7 @@ angular.module('myApp', ['cj']).configure(function(cjProvider){
   // which is invoked before processing the template
   cjProvider.setErrorHandler(function(response, q, config){
     return q.reject(response);
-  })
+  });
 
 });
 ```

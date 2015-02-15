@@ -1,17 +1,25 @@
 angular.module('Collection', []).provider('cj', function () {
-  var strictTemplate, strictVersion, urlTransform;
+  var errorHandler, strictVersion, successHandler, urlTransform;
   urlTransform = angular.identity;
   strictVersion = true;
-  strictTemplate = false;
+  successHandler = function (s, q, c) {
+    return s;
+  };
+  errorHandler = function (e, q, c) {
+    return q.reject(e);
+  };
   return {
-    setUrlTransform: function (transform) {
-      return urlTransform = transform;
+    setUrlTransform: function (_urlTransform) {
+      return urlTransform = _urlTransform;
     },
-    setStrictVersion: function (strict) {
-      return strictVersion = strict;
+    setStrictVersion: function (_strictVersion) {
+      return strictVersion = _strictVersion;
     },
-    setStrictTemplate: function (template) {
-      return strictTemplate = template;
+    setSuccessHandler: function (_successHandler) {
+      return successHandler = _successHandler;
+    },
+    setErrorHandler: function (_errorHandler) {
+      return errorHandler = _errorHandler;
     },
     $get: [
       'Collection',
@@ -23,25 +31,21 @@ angular.module('Collection', []).provider('cj', function () {
           var config;
           config = angular.extend({ url: urlTransform(href) }, options);
           return $http(config).then(function (res) {
-            return client.handleSuccess(res, config);
+            return $q.when(successHandler(res, $q, config)).then(function (s) {
+              return client.handleSuccess(s, config);
+            }, function (e) {
+              return client.handleError(e, config);
+            });
           }, function (res) {
-            return client.handleError(res, config);
+            return $q.when(errorHandler(res, $q, config)).then(function (s) {
+              return client.handleSuccess(s, config);
+            }, function (e) {
+              return client.handleError(e, config);
+            });
           });
         };
         client.handleSuccess = function (res, config) {
-          var collectionObj, redirect;
-          if (res.status === 201) {
-            redirect = res.headers('Location');
-            if (!redirect) {
-              return $q.reject(new Error('Http status is 201, but Location header not set'));
-            } else {
-              client(redirect, config);
-            }
-          } else if (res.status === 204) {
-            collectionObj = new Collection({ 'version': '1.0' }, { strictTemplate: strictTemplate });
-            $q.when(collectionObj);
-          }
-          return client.parse(res.data(config));
+          return client.parse(res.data, config);
         };
         client.handleError = function (res, config) {
           return client.parse(res.data).then(function (collection) {
@@ -52,7 +56,7 @@ angular.module('Collection', []).provider('cj', function () {
             return $q.reject(e);
           });
         };
-        client.parse = function (source) {
+        client.parse = function (source, config) {
           var collectionObj, e, _ref;
           if (!source) {
             return $q.reject(new Error('source is empty'));
@@ -71,7 +75,7 @@ angular.module('Collection', []).provider('cj', function () {
           if (strictVersion && ((_ref = source.collection) != null ? _ref.version : void 0) !== '1.0') {
             return $q.reject(new Error('Collection does not conform to Collection+JSON 1.0 Spec'));
           }
-          collectionObj = new Collection(source.collection, { strictTemplate: strictTemplate });
+          collectionObj = new Collection(source.collection);
           if (collectionObj.error) {
             e = new Error('Parsed collection contains errors');
             e.collection = collectionObj;
@@ -85,125 +89,6 @@ angular.module('Collection', []).provider('cj', function () {
     ]
   };
 });
-var __slice = [].slice;
-angular.module('Collection').service('defineNested', function () {
-  var defineNested;
-  return defineNested = function (obj, keys, prop) {
-    var head, next, tail;
-    head = keys[0], tail = 2 <= keys.length ? __slice.call(keys, 1) : [];
-    if (!tail.length) {
-      return Object.defineProperty(obj, head, prop);
-    } else {
-      next = obj[head] || (obj[head] = {});
-      return defineNested(next, tail, prop);
-    }
-  };
-});
-var __slice = [].slice;
-angular.module('Collection').service('nameFormatter', function () {
-  var notEmpty, _nestedAssign, _nestedAssignVerbose;
-  _nestedAssign = function (obj, segments, value) {
-    var head, tail;
-    head = segments[0], tail = 2 <= segments.length ? __slice.call(segments, 1) : [];
-    if (tail.length) {
-      obj[head] || (obj[head] = {});
-      return _nestedAssign(obj[head], tail, value);
-    } else {
-      obj[head] = value;
-      return obj;
-    }
-  };
-  _nestedAssignVerbose = function (obj, segments, value) {
-    var head, tail;
-    head = segments[0], tail = 2 <= segments.length ? __slice.call(segments, 1) : [];
-    if (tail.length) {
-      obj['name'] = head;
-      obj['value'] = {};
-      return _nestedAssignVerbose(obj['value'], tail, value);
-    } else {
-      obj['name'] = head;
-      obj['value'] = value;
-      return obj;
-    }
-  };
-  notEmpty = function (s) {
-    return s !== '';
-  };
-  return {
-    bracketedSegments: function (str) {
-      if (!angular.isString(str)) {
-        return [];
-      }
-      return str.split(/[\]\[]/).filter(notEmpty);
-    },
-    dottedSegments: function (str) {
-      if (!angular.isString(str)) {
-        return [];
-      }
-      return str.split('.').filter(notEmpty);
-    },
-    dotted: function (str) {
-      var segments;
-      if (!angular.isString(str)) {
-        return str;
-      }
-      segments = this.bracketedSegments(str);
-      return segments.join('.');
-    },
-    bracketed: function (str) {
-      var i, segments, _i, _ref;
-      if (!angular.isString(str)) {
-        return str;
-      }
-      segments = this.dottedSegments(str);
-      for (i = _i = 1, _ref = segments.length; 1 <= _ref ? _i < _ref : _i > _ref; i = 1 <= _ref ? ++_i : --_i) {
-        segments[i] = '[' + segments[i] + ']';
-      }
-      return segments.join('');
-    },
-    _nestedAssign: _nestedAssign,
-    _nestedAssignVerbose: _nestedAssignVerbose
-  };
-});
-angular.module('Collection').factory('ReadonlyCache', function () {
-  var ReadonlyCache;
-  return ReadonlyCache = function () {
-    var noop;
-    noop = angular.noop;
-    function ReadonlyCache(_inner) {
-      this._inner = _inner;
-    }
-    ReadonlyCache.prototype.get = function (key) {
-      return this._inner[key];
-    };
-    ReadonlyCache.prototype.put = function (key, val) {
-      return val;
-    };
-    ReadonlyCache.prototype.remove = noop;
-    ReadonlyCache.prototype.removeAll = noop;
-    ReadonlyCache.prototype.destroy = noop;
-    ReadonlyCache.prototype.info = function () {
-      return {
-        id: null,
-        size: Object.keys(this._inner).length,
-        readonly: true
-      };
-    };
-    return ReadonlyCache;
-  }();
-});
-var __slice = [].slice;
-angular.module('Collection').service('sealNested', function () {
-  var sealNested;
-  return sealNested = function (obj, keys) {
-    var head, tail;
-    head = keys[0], tail = 2 <= keys.length ? __slice.call(keys, 1) : [];
-    if (angular.isObject(obj)) {
-      Object.seal(obj);
-      return sealNested(obj[head], tail);
-    }
-  };
-});
 angular.module('Collection').provider('Collection', function () {
   return {
     $get: [
@@ -211,28 +96,14 @@ angular.module('Collection').provider('Collection', function () {
       'Item',
       'Query',
       'Template',
-      'ReadonlyCache',
       '$injector',
-      function (Link, Item, Query, Template, ReadonlyCache, $injector) {
-        var Collection, buildCache;
-        buildCache = function (embedded) {
-          var c, embeddedLookup, _i, _len, _ref;
-          embeddedLookup = {};
-          _ref = embedded || [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            c = _ref[_i];
-            if (c.collection) {
-              embeddedLookup[c.collection.href] = c;
-            }
-          }
-          return new ReadonlyCache(embeddedLookup);
-        };
+      function (Link, Item, Query, Template, $injector) {
+        var Collection;
         return Collection = function () {
           function Collection(collection, options) {
             if (options == null) {
               options = {};
             }
-            this._strictTemplate = options.strictTemplate || false;
             this._collection = collection;
             this._links = null;
             this._queries = null;
@@ -240,7 +111,6 @@ angular.module('Collection').provider('Collection', function () {
             this._template = null;
             this.error = this._collection.error;
             this.client = $injector.get('cj');
-            this._cache = buildCache(this._collection.embedded);
           }
           Collection.prototype.href = function () {
             return this._collection.href;
@@ -260,7 +130,7 @@ angular.module('Collection').provider('Collection', function () {
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 l = _ref[_i];
                 if (!rel || l.rel === rel) {
-                  _results.push(new Link(l, this._cache));
+                  _results.push(new Link(l));
                 }
               }
               return _results;
@@ -288,7 +158,7 @@ angular.module('Collection').provider('Collection', function () {
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 i = _ref[_i];
-                _results.push(new Item(i, template, this._cache));
+                _results.push(new Item(i, template));
               }
               return _results;
             }.call(this);
@@ -327,7 +197,7 @@ angular.module('Collection').provider('Collection', function () {
             if (!this._collection.template) {
               return;
             }
-            return new Template(this._collection.href, this._collection.template, { strict: this._strictTemplate });
+            return new Template(this._collection.href, this._collection.template);
           };
           Collection.prototype.templateAll = function (ns) {
             var item, _i, _len, _ref, _results;
@@ -361,8 +231,7 @@ angular.module('Collection').provider('Item', function () {
       'Link',
       'Template',
       '$injector',
-      'nameFormatter',
-      function (Link, Template, $injector, nameFormatter) {
+      function (Link, Template, $injector) {
         var Item;
         return Item = function () {
           function Item(_item, _template, _cache) {
@@ -568,15 +437,12 @@ angular.module('Collection').provider('Template', function () {
   return {
     $get: [
       '$injector',
-      'nameFormatter',
-      'defineNested',
-      'sealNested',
-      function ($injector, nameFormatter, defineNested, sealNested) {
+      function ($injector) {
         var Template;
         return Template = function () {
           var TemplateDatum;
           function Template(_href, _template, opts) {
-            var d, segments, _fn, _i, _j, _len, _len1, _ref, _ref1;
+            var d, _fn, _i, _len, _ref;
             this._href = _href;
             this._template = _template;
             if (opts == null) {
@@ -585,72 +451,19 @@ angular.module('Collection').provider('Template', function () {
             this.client = $injector.get('cj');
             this._data = {};
             this._submitMethod = opts.method || 'POST';
-            this._strict = opts.strict || false;
-            this.options = {};
-            this.prompts = {};
-            this.errors = {};
-            this.selectedOptions = {};
-            this.data = {};
             _ref = this._template.data || [];
             _fn = function (_this) {
               return function () {
-                var datum, segments;
-                datum = _this._data[d.name] = new TemplateDatum(d);
-                segments = nameFormatter.bracketedSegments(d.name);
-                defineNested(_this, segments, {
-                  enumerable: true,
-                  get: function () {
-                    return datum.value;
-                  },
-                  set: function (v) {
-                    return datum.value = v;
-                  }
-                });
-                defineNested(_this.options, segments, {
-                  get: function () {
-                    return datum.options;
-                  }
-                });
-                defineNested(_this.prompts, segments, {
-                  get: function () {
-                    return datum.prompt;
-                  }
-                });
-                defineNested(_this.errors, segments, {
-                  get: function () {
-                    return datum.errors;
-                  }
-                });
-                defineNested(_this.selectedOptions, segments, {
-                  get: function () {
-                    return datum.selectedOptions();
-                  },
-                  set: function (option) {
-                    return datum.value = option != null ? option.value : void 0;
-                  }
-                });
-                return defineNested(_this.data, segments, {
-                  enumerable: true,
-                  get: function () {
-                    return datum;
-                  }
-                });
+                return _this._data[d.name] = new TemplateDatum(d);
               };
             }(this);
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               d = _ref[_i];
               _fn();
             }
-            _ref1 = this._template.data || [];
-            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-              d = _ref1[_j];
-              segments = nameFormatter.bracketedSegments(d.name);
-            }
           }
           Template.prototype.datum = function (key) {
-            var formatted;
-            formatted = nameFormatter.bracketed(key);
-            return this._data[formatted];
+            return this._data[key];
           };
           Template.prototype.get = function (key) {
             var _ref;
@@ -663,39 +476,6 @@ angular.module('Collection').provider('Template', function () {
           Template.prototype.promptFor = function (key) {
             var _ref;
             return (_ref = this.datum(key)) != null ? _ref.prompt : void 0;
-          };
-          Template.prototype.errorsFor = function (key) {
-            var _ref;
-            return (_ref = this.datum(key)) != null ? _ref.errors : void 0;
-          };
-          Template.prototype.optionsFor = function (key, applyConditions) {
-            var o, options, _i, _len, _ref, _results;
-            if (applyConditions == null) {
-              applyConditions = true;
-            }
-            options = (_ref = this.datum(key)) != null ? _ref.options : void 0;
-            if (!applyConditions) {
-              return options;
-            } else {
-              _results = [];
-              for (_i = 0, _len = options.length; _i < _len; _i++) {
-                o = options[_i];
-                if (this.conditionsMatch(o.conditions)) {
-                  _results.push(o);
-                }
-              }
-              return _results;
-            }
-          };
-          Template.prototype.conditionsMatch = function (conditions) {
-            if (!conditions || !conditions.length) {
-              return true;
-            }
-            return conditions.every(function (_this) {
-              return function (c) {
-                return _this.get(c.field) === c.value;
-              };
-            }(this));
           };
           Template.prototype.href = function () {
             return this._href;
@@ -710,77 +490,28 @@ angular.module('Collection').provider('Template', function () {
             }
             return memo;
           };
-          Template.prototype.formNested = function () {
-            var datum, key, memo, segments, _ref;
-            memo = {};
-            _ref = this._data;
-            for (key in _ref) {
-              datum = _ref[key];
-              segments = nameFormatter.bracketedSegments(key);
-              nameFormatter._nestedAssign.call(this, memo, segments, datum.value);
-            }
-            return memo;
-          };
-          Template.prototype.valid = function () {
-            var datum, key, _ref;
-            _ref = this._data;
-            for (key in _ref) {
-              datum = _ref[key];
-              if (!datum.valid()) {
-                return false;
-              }
-            }
-            return true;
-          };
           Template.prototype.submit = function () {
             return this.client(this.href(), {
               method: this._submitMethod,
-              data: this._strict ? this.parametersNestedVerbose() : this.parametersNested()
+              data: this.serializeData()
             });
           };
           Template.prototype.refresh = function () {
-            return this.client(this.href(), {
-              method: 'GET',
-              params: this.parameters()
-            });
+            return this.client(this.href(), { method: 'GET' });
           };
-          Template.prototype.parameters = function () {
-            var datum, k, result, _ref;
-            result = {};
-            _ref = this._data;
-            for (k in _ref) {
-              datum = _ref[k];
-              if (datum.template) {
-                angular.extend(result, datum.template.parameters());
-              } else {
-                result[datum.parameter || datum.name] = datum.value;
-              }
-            }
-            return result;
-          };
-          Template.prototype.parametersNested = function () {
-            var key, memo, segments, value, _ref;
-            memo = {};
-            _ref = this.parameters();
+          Template.prototype.serializeData = function () {
+            var data, key, obj, value, _ref;
+            data = [];
+            _ref = this.form();
             for (key in _ref) {
               value = _ref[key];
-              segments = nameFormatter.bracketedSegments(key);
-              nameFormatter._nestedAssign(memo, segments, value);
+              obj = {
+                name: key,
+                value: value
+              };
             }
-            return memo;
-          };
-          Template.prototype.parametersNestedVerbose = function () {
-            var arrayOfObjects, key, obj, segments, value, _ref;
-            arrayOfObjects = [];
-            _ref = this.parameters();
-            for (key in _ref) {
-              value = _ref[key];
-              obj = {};
-              segments = nameFormatter.bracketedSegments(key);
-              nameFormatter._nestedAssignVerbose(obj, segments, value);
-              arrayOfObjects.push(obj);
-            }
-            return JSON.stringify({ template: { data: arrayOfObjects } });
+            data.push(obj);
+            return JSON.stringify({ template: { data: data } });
           };
           TemplateDatum = function () {
             var empty;
@@ -790,75 +521,9 @@ angular.module('Collection').provider('Template', function () {
             function TemplateDatum(_datum) {
               this._datum = _datum;
               this.name = this._datum.name;
-              this.parameter = this._datum.parameter;
               this.value = this._datum.value;
               this.prompt = this._datum.prompt;
-              this.valueType = this._datum.value_type;
-              this.options = this._datum.options || [];
-              this.errors = this._datum.errors || [];
-              this.validationErrors = [];
-              this.template = null;
-              if (this._datum.template) {
-                this.template = new Template(null, this._datum.template);
-              }
             }
-            TemplateDatum.prototype.valid = function () {
-              var isError, name, _ref;
-              this.validationErrors = {
-                required: !this.validateRequired(),
-                regexp: !this.validateRegexp()
-              };
-              _ref = this.validationErrors;
-              for (name in _ref) {
-                isError = _ref[name];
-                if (isError) {
-                  return false;
-                }
-              }
-              return true;
-            };
-            TemplateDatum.prototype.validateRequired = function () {
-              if (this._datum.required) {
-                return !empty(this.value);
-              } else {
-                return true;
-              }
-            };
-            TemplateDatum.prototype.validateRegexp = function () {
-              if (this._datum.regexp) {
-                return empty(this.value) || this.value.match(this._datum.regexp);
-              } else {
-                return true;
-              }
-            };
-            TemplateDatum.prototype.selectedOptions = function () {
-              var o, options, _i, _len, _ref, _results;
-              if (angular.isArray(this.value)) {
-                _ref = this.options;
-                _results = [];
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  o = _ref[_i];
-                  if (~this.value.indexOf(o.value)) {
-                    _results.push(o);
-                  }
-                }
-                return _results;
-              } else {
-                options = function () {
-                  var _j, _len1, _ref1, _results1;
-                  _ref1 = this.options;
-                  _results1 = [];
-                  for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                    o = _ref1[_j];
-                    if (o.value === this.value) {
-                      _results1.push(o);
-                    }
-                  }
-                  return _results1;
-                }.call(this);
-                return options[0];
-              }
-            };
             return TemplateDatum;
           }();
           return Template;
