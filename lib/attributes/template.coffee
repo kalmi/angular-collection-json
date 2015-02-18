@@ -41,7 +41,7 @@ angular.module('Collection').provider('Template', ->
         data = [];
         for key, value of @form()
           obj = { name: key, value: value }
-        data.push obj
+          data.push obj
         JSON.stringify { template: { data : data } }
 
       class TemplateDatum

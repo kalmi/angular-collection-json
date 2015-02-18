@@ -57,3 +57,12 @@ describe "[template](http://amundsen.com/media-types/collection/format/#objects-
     expect(form.blog).toEqual blog
     expect(form.email).toEqual email
 
+  it "should format the template well", ->
+
+    newItem = collection.template()
+
+    parsed = JSON.parse newItem.serializeData()
+
+    expect(parsed).toBeDefined()
+    expect(parsed.template).toBeDefined()
+    expect(parsed.template.data).toBeDefined()
