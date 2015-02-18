@@ -63,6 +63,14 @@ describe "[template](http://amundsen.com/media-types/collection/format/#objects-
 
     parsed = JSON.parse newItem.serializeData()
 
-    expect(parsed).toBeDefined()
-    expect(parsed.template).toBeDefined()
-    expect(parsed.template.data).toBeDefined()
+    expect(parsed).toEqual( 
+      {
+        "template": {
+          "data": [
+            {"name": "full-name", "value": "Joe"},
+            {"name": "email", "value": ""},
+            {"name": "blog", "value": ""},
+            {"name": "avatar", "value": ""},
+            {"name": "address[city]", "value": ""}
+          ]}
+      })

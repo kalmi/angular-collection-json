@@ -553,8 +553,8 @@ angular.module('Collection').provider('Template', function() {
               name: key,
               value: value
             };
+            data.push(obj);
           }
-          data.push(obj);
           return JSON.stringify({
             template: {
               data: data
