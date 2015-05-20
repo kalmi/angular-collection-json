@@ -21,7 +21,7 @@ angular.module('Collection', []).provider('cj', function() {
     setErrorHandler: function(_errorHandler) {
       return errorHandler = _errorHandler;
     },
-    $get: function(Collection, $http, $q) {
+    $get: ["Collection", "$http", "$q", function(Collection, $http, $q) {
       var client;
       client = function(href, options) {
         var config;
@@ -55,7 +55,7 @@ angular.module('Collection', []).provider('cj', function() {
         });
       };
       client.parse = function(source, config) {
-        var collectionObj, e, _ref;
+        var collectionObj, e, ref;
         if (!source) {
           return $q.reject(new Error('source is empty'));
         }
@@ -70,7 +70,7 @@ angular.module('Collection', []).provider('cj', function() {
         if (!angular.isObject(source.collection)) {
           return $q.reject(new Error("Source 'collection' is not an object"));
         }
-        if (strictVersion && ((_ref = source.collection) != null ? _ref.version : void 0) !== "1.0") {
+        if (strictVersion && ((ref = source.collection) != null ? ref.version : void 0) !== "1.0") {
           return $q.reject(new Error("Collection does not conform to Collection+JSON 1.0 Spec"));
         }
         collectionObj = new Collection(source.collection);
@@ -83,12 +83,12 @@ angular.module('Collection', []).provider('cj', function() {
         }
       };
       return client;
-    }
+    }]
   };
 });
 angular.module('Collection').provider('Collection', function() {
   return {
-    $get: function(Link, Item, Query, Template, $injector) {
+    $get: ["Link", "Item", "Query", "Template", "$injector", function(Link, Item, Query, Template, $injector) {
       var Collection;
       return Collection = (function() {
         function Collection(collection, options) {
@@ -118,24 +118,24 @@ angular.module('Collection').provider('Collection', function() {
             return this._links;
           }
           return this._links = (function() {
-            var _i, _len, _ref, _results;
-            _ref = this._collection.links || [];
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              l = _ref[_i];
+            var j, len, ref, results;
+            ref = this._collection.links || [];
+            results = [];
+            for (j = 0, len = ref.length; j < len; j++) {
+              l = ref[j];
               if (!rel || l.rel === rel) {
-                _results.push(new Link(l));
+                results.push(new Link(l));
               }
             }
-            return _results;
+            return results;
           }).call(this);
         };
 
         Collection.prototype.link = function(rel) {
-          var l, _i, _len, _ref;
-          _ref = this.links();
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            l = _ref[_i];
+          var j, l, len, ref;
+          ref = this.links();
+          for (j = 0, len = ref.length; j < len; j++) {
+            l = ref[j];
             if (l.rel() === rel) {
               return l;
             }
@@ -149,22 +149,22 @@ angular.module('Collection').provider('Collection', function() {
           }
           template = this._collection.template;
           return this._items = (function() {
-            var _i, _len, _ref, _results;
-            _ref = this._collection.items || [];
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              i = _ref[_i];
-              _results.push(new Item(i, template));
+            var j, len, ref, results;
+            ref = this._collection.items || [];
+            results = [];
+            for (j = 0, len = ref.length; j < len; j++) {
+              i = ref[j];
+              results.push(new Item(i, template));
             }
-            return _results;
+            return results;
           }).call(this);
         };
 
         Collection.prototype.item = function(href) {
-          var i, _i, _len, _ref;
-          _ref = this.items();
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            i = _ref[_i];
+          var i, j, len, ref;
+          ref = this.items();
+          for (j = 0, len = ref.length; j < len; j++) {
+            i = ref[j];
             if (i.href() === href) {
               return i;
             }
@@ -172,21 +172,21 @@ angular.module('Collection').provider('Collection', function() {
         };
 
         Collection.prototype.queries = function() {
-          var q, _i, _len, _ref, _results;
-          _ref = this._collection.queries || [];
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            q = _ref[_i];
-            _results.push(new Query(q));
+          var j, len, q, ref, results;
+          ref = this._collection.queries || [];
+          results = [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            q = ref[j];
+            results.push(new Query(q));
           }
-          return _results;
+          return results;
         };
 
         Collection.prototype.query = function(rel) {
-          var q, _i, _len, _ref;
-          _ref = this._collection.queries || [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            q = _ref[_i];
+          var j, len, q, ref;
+          ref = this._collection.queries || [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            q = ref[j];
             if (q.rel === rel) {
               return new Query(q);
             }
@@ -201,19 +201,19 @@ angular.module('Collection').provider('Collection', function() {
         };
 
         Collection.prototype.templateAll = function(ns) {
-          var item, _i, _len, _ref, _results;
-          _ref = this.items();
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            item = _ref[_i];
-            _results.push(item.edit(ns));
+          var item, j, len, ref, results;
+          ref = this.items();
+          results = [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            item = ref[j];
+            results.push(item.edit(ns));
           }
-          return _results;
+          return results;
         };
 
         Collection.prototype.meta = function(name) {
-          var _ref;
-          return (_ref = this._collection.meta) != null ? _ref[name] : void 0;
+          var ref;
+          return (ref = this._collection.meta) != null ? ref[name] : void 0;
         };
 
         Collection.prototype.remove = function() {
@@ -231,12 +231,12 @@ angular.module('Collection').provider('Collection', function() {
         return Collection;
 
       })();
-    }
+    }]
   };
 });
 angular.module('Collection').provider('Item', function() {
   return {
-    $get: function(Link, Template, $injector) {
+    $get: ["Link", "Template", "$injector", function(Link, Template, $injector) {
       var Item;
       return Item = (function() {
         function Item(_item, _template, _cache) {
@@ -252,10 +252,10 @@ angular.module('Collection').provider('Item', function() {
         };
 
         Item.prototype.datum = function(key) {
-          var i, _i, _len, _ref;
-          _ref = this._item.data;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            i = _ref[_i];
+          var i, j, len, ref;
+          ref = this._item.data;
+          for (j = 0, len = ref.length; j < len; j++) {
+            i = ref[j];
             if (i.name === key) {
               return angular.extend({}, i);
             }
@@ -263,16 +263,16 @@ angular.module('Collection').provider('Item', function() {
         };
 
         Item.prototype.get = function(key) {
-          var _ref;
-          return (_ref = this.datum(key)) != null ? _ref.value : void 0;
+          var ref;
+          return (ref = this.datum(key)) != null ? ref.value : void 0;
         };
 
         Item.prototype.fields = function() {
-          var item, memo, segments, _i, _len, _ref;
+          var item, j, len, memo, ref, segments;
           memo = {};
-          _ref = this._item.data;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            item = _ref[_i];
+          ref = this._item.data;
+          for (j = 0, len = ref.length; j < len; j++) {
+            item = ref[j];
             segments = nameFormatter.bracketedSegments(item.name);
             nameFormatter._nestedAssign.call(this, memo, segments, item.value);
           }
@@ -284,8 +284,8 @@ angular.module('Collection').provider('Item', function() {
         };
 
         Item.prototype.promptFor = function(key) {
-          var _ref;
-          return (_ref = this.datum(key)) != null ? _ref.prompt : void 0;
+          var ref;
+          return (ref = this.datum(key)) != null ? ref.prompt : void 0;
         };
 
         Item.prototype.load = function() {
@@ -296,14 +296,14 @@ angular.module('Collection').provider('Item', function() {
           var l;
           if (!this._links) {
             this._links = (function() {
-              var _i, _len, _ref, _results;
-              _ref = this._item.links || [];
-              _results = [];
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                l = _ref[_i];
-                _results.push(new Link(l, this._cache));
+              var j, len, ref, results;
+              ref = this._item.links || [];
+              results = [];
+              for (j = 0, len = ref.length; j < len; j++) {
+                l = ref[j];
+                results.push(new Link(l, this._cache));
               }
-              return _results;
+              return results;
             }).call(this);
           }
           if (!rel) {
@@ -313,25 +313,25 @@ angular.module('Collection').provider('Item', function() {
               rel = [rel];
             }
             return (function() {
-              var _i, _len, _ref, _results;
-              _ref = this._links || [];
-              _results = [];
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                l = _ref[_i];
+              var j, len, ref, results;
+              ref = this._links || [];
+              results = [];
+              for (j = 0, len = ref.length; j < len; j++) {
+                l = ref[j];
                 if (rel.indexOf(l.rel()) > -1) {
-                  _results.push(l);
+                  results.push(l);
                 }
               }
-              return _results;
+              return results;
             }).call(this);
           }
         };
 
         Item.prototype.link = function(rel) {
-          var l, _i, _len, _ref;
-          _ref = this.links();
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            l = _ref[_i];
+          var j, l, len, ref;
+          ref = this.links();
+          for (j = 0, len = ref.length; j < len; j++) {
+            l = ref[j];
             if (l.rel() === rel) {
               return l;
             }
@@ -339,17 +339,17 @@ angular.module('Collection').provider('Item', function() {
         };
 
         Item.prototype.edit = function(ns) {
-          var datum, template, _i, _len, _ref;
+          var datum, j, len, ref, template;
           if (!this._template) {
             return;
           }
           template = new Template(this.href(), this._template, {
             method: 'PUT'
           });
-          _ref = this._item.data;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            datum = _ref[_i];
-            template.set((ns ? "" + ns + "[" + datum.name + "]" : datum.name), datum.value);
+          ref = this._item.data;
+          for (j = 0, len = ref.length; j < len; j++) {
+            datum = ref[j];
+            template.set((ns ? ns + "[" + datum.name + "]" : datum.name), datum.value);
           }
           return template;
         };
@@ -363,12 +363,12 @@ angular.module('Collection').provider('Item', function() {
         return Item;
 
       })();
-    }
+    }]
   };
 });
 angular.module('Collection').provider('Link', function() {
   return {
-    $get: function($injector) {
+    $get: ["$injector", function($injector) {
       var Link;
       return Link = (function() {
         function Link(_link, _cache) {
@@ -403,12 +403,12 @@ angular.module('Collection').provider('Link', function() {
         return Link;
 
       })();
-    }
+    }]
   };
 });
 angular.module('Collection').provider('Query', function() {
   return {
-    $get: function($injector, Template) {
+    $get: ["$injector", "Template", function($injector, Template) {
       var Query;
       return Query = (function() {
         function Query(_query) {
@@ -418,10 +418,10 @@ angular.module('Collection').provider('Query', function() {
         }
 
         Query.prototype.datum = function(key) {
-          var d, _i, _len, _ref;
-          _ref = this._query.data || [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            d = _ref[_i];
+          var d, i, len, ref;
+          ref = this._query.data || [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            d = ref[i];
             if (d.name === key) {
               return angular.extend({}, d);
             }
@@ -437,8 +437,8 @@ angular.module('Collection').provider('Query', function() {
         };
 
         Query.prototype.promptFor = function(key) {
-          var _ref;
-          return (_ref = this.datum(key)) != null ? _ref.prompt : void 0;
+          var ref;
+          return (ref = this.datum(key)) != null ? ref.prompt : void 0;
         };
 
         Query.prototype.href = function() {
@@ -464,18 +464,18 @@ angular.module('Collection').provider('Query', function() {
         return Query;
 
       })();
-    }
+    }]
   };
 });
 angular.module('Collection').provider('Template', function() {
   return {
-    $get: function($injector) {
+    $get: ["$injector", function($injector) {
       var Template;
       return Template = (function() {
         var TemplateDatum;
 
         function Template(_href, _template, opts) {
-          var d, _fn, _i, _len, _ref;
+          var d, fn, i, len, ref;
           this._href = _href;
           this._template = _template;
           if (opts == null) {
@@ -484,15 +484,15 @@ angular.module('Collection').provider('Template', function() {
           this.client = $injector.get('cj');
           this._data = {};
           this._submitMethod = opts.method || 'POST';
-          _ref = this._template.data || [];
-          _fn = (function(_this) {
+          ref = this._template.data || [];
+          fn = (function(_this) {
             return function() {
               return _this._data[d.name] = new TemplateDatum(d);
             };
           })(this);
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            d = _ref[_i];
-            _fn();
+          for (i = 0, len = ref.length; i < len; i++) {
+            d = ref[i];
+            fn();
           }
         }
 
@@ -501,18 +501,18 @@ angular.module('Collection').provider('Template', function() {
         };
 
         Template.prototype.get = function(key) {
-          var _ref;
-          return (_ref = this.datum(key)) != null ? _ref.value : void 0;
+          var ref;
+          return (ref = this.datum(key)) != null ? ref.value : void 0;
         };
 
         Template.prototype.set = function(key, value) {
-          var _ref;
-          return (_ref = this.datum(key)) != null ? _ref.value = value : void 0;
+          var ref;
+          return (ref = this.datum(key)) != null ? ref.value = value : void 0;
         };
 
         Template.prototype.promptFor = function(key) {
-          var _ref;
-          return (_ref = this.datum(key)) != null ? _ref.prompt : void 0;
+          var ref;
+          return (ref = this.datum(key)) != null ? ref.prompt : void 0;
         };
 
         Template.prototype.href = function() {
@@ -520,11 +520,11 @@ angular.module('Collection').provider('Template', function() {
         };
 
         Template.prototype.form = function() {
-          var datum, key, memo, _ref;
+          var datum, key, memo, ref;
           memo = {};
-          _ref = this._data;
-          for (key in _ref) {
-            datum = _ref[key];
+          ref = this._data;
+          for (key in ref) {
+            datum = ref[key];
             memo[key] = datum.value;
           }
           return memo;
@@ -544,11 +544,11 @@ angular.module('Collection').provider('Template', function() {
         };
 
         Template.prototype.serializeData = function() {
-          var data, key, obj, value, _ref;
+          var data, key, obj, ref, value;
           data = [];
-          _ref = this.form();
-          for (key in _ref) {
-            value = _ref[key];
+          ref = this.form();
+          for (key in ref) {
+            value = ref[key];
             obj = {
               name: key,
               value: value
@@ -583,6 +583,6 @@ angular.module('Collection').provider('Template', function() {
         return Template;
 
       })();
-    }
+    }]
   };
 });

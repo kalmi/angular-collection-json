@@ -34,22 +34,19 @@ dist/angular-collection-json.js: node_modules dist lib
 		lib/client.coffee \
 		lib/attributes/*.coffee \
 		> dist/angular-collection-json.js
+	@./node_modules/ng-annotate/ng-annotate-harmony -ar \
+		dist/angular-collection-json.js \
+		> dist/angular-collection-json.annoted.js
+	@mv dist/angular-collection-json.annoted.js dist/angular-collection-json.js
 
-dist/angular-collection-json.ngmin.js: dist/angular-collection-json.js
-	@echo "ngminifying..."
-	@./node_modules/ngmin/bin/ngmin \
-		< dist/angular-collection-json.js\
-		> dist/angular-collection-json.ngmin.js\
-
-dist/angular-collection-json.min.js: dist/angular-collection-json.ngmin.js
+dist/angular-collection-json.min.js: dist/angular-collection-json.js
 	@echo "Uglifying..."
 	@./node_modules/uglify-js/bin/uglifyjs \
-		< dist/angular-collection-json.ngmin.js\
+		< dist/angular-collection-json.js\
 		> dist/angular-collection-json.min.js\
 
 compile: \
 	dist/angular-collection-json.js \
-	dist/angular-collection-json.ngmin.js \
 	dist/angular-collection-json.min.js
 
 clean:
